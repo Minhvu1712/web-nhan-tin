@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CloudShare - Hệ Thống Chia Sẻ & Quản Lý Mật Khẩu</title>
+    <title>CloudShare - Hệ Thống Bảo Mật & Tìm Kiếm Nâng Cao</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -28,12 +28,12 @@
         <!-- 1. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ / QUÊN MẬT KHẨU -->
         <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
             <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl p-8 border border-slate-100 dark:border-slate-700">
-                <div class="text-center mb-8">
+                <div class="text-center mb-6">
                     <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary-500 text-white text-2xl font-bold mb-4 shadow-lg shadow-primary-500/30">
                         <i class="fa-solid fa-paper-plane"></i>
                     </div>
                     <h1 id="auth-title" class="text-2xl font-bold tracking-tight">Đăng nhập vào Hệ thống</h1>
-                    <p id="auth-subtitle" class="text-sm text-slate-500 dark:text-slate-400 mt-1">Bảo mật mã hóa mật khẩu SHA-256</p>
+                    <p id="auth-subtitle" class="text-sm text-slate-500 dark:text-slate-400 mt-1">Hệ thống nhắn tin chia sẻ tệp & tìm kiếm nâng cao</p>
                 </div>
 
                 <!-- Form Đăng nhập & Đăng ký -->
@@ -81,7 +81,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Mật khẩu mới</label>
-                            <input type="password" id="forgot-new-password" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-primary-500 focus:outline-none transition">
+                            <input type="password" id="forgot-new-password" placeholder="Tối thiểu 7 ký tự (Hoa, thường, số, ký tự đặc biệt)" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-primary-500 focus:outline-none transition">
                         </div>
                         <button type="submit" class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-lg transition">
                             Đổi Mật Khẩu & Đăng Nhập
@@ -89,7 +89,17 @@
                     </div>
                 </form>
 
-                <div class="mt-6 text-center text-sm">
+                <div class="mt-4 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700 text-[11px] text-slate-500 dark:text-slate-400 space-y-1">
+                    <p class="font-semibold text-slate-600 dark:text-slate-300">Yêu cầu mật khẩu an toàn:</p>
+                    <ul class="list-disc pl-4 space-y-0.5">
+                        <li>Độ dài tối thiểu <strong>7 ký tự</strong></li>
+                        <li>Bao gồm chữ cái <strong>viết hoa</strong> và <strong>viết thường</strong></li>
+                        <li>Bao gồm ít nhất một chữ <strong>số</strong> (0-9)</li>
+                        <li>Bao gồm ít nhất một <strong>ký tự đặc biệt</strong> (vd: @, #, $, !,...)</li>
+                    </ul>
+                </div>
+
+                <div class="mt-4 text-center text-sm">
                     <span id="auth-switch-text" class="text-slate-500 dark:text-slate-400">Chưa có tài khoản?</span>
                     <button type="button" id="auth-switch-btn" class="font-semibold text-primary-600 dark:text-primary-400 hover:underline ml-1">Đăng ký ngay</button>
                 </div>
@@ -156,12 +166,10 @@
                         </div>
                     </div>
 
-                    <!-- Nút Đổi Mật Khẩu -->
                     <button onclick="openChangePasswordModal()" class="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200 font-medium rounded-xl text-xs flex items-center justify-center gap-2 transition">
                         <i class="fa-solid fa-key"></i> Đổi mật khẩu
                     </button>
 
-                    <!-- Nút Đăng Xuất -->
                     <button onclick="handleLogout()" class="w-full py-2 px-3 bg-red-50 hover:bg-red-100 text-red-600 font-medium rounded-xl text-xs flex items-center justify-center gap-2 border border-red-200 transition">
                         <i class="fa-solid fa-right-from-bracket"></i> Đăng Xuất
                     </button>
@@ -169,19 +177,26 @@
             </aside>
 
             <main class="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-900">
-                <header class="h-16 bg-white dark:bg-slate-800 border-b border-slate-200 px-6 flex items-center justify-between shrink-0">
-                    <div class="flex items-center gap-4 w-96">
-                        <div class="relative w-full">
+                <!-- Thanh Header với 2 công cụ tra cứu: Từ khóa & Ngày gửi -->
+                <header class="h-16 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 flex items-center justify-between gap-4 shrink-0">
+                    <div class="flex items-center gap-3 flex-1 max-w-2xl">
+                        <!-- Tìm từ khóa (Tiêu đề, Tên, Nội dung) -->
+                        <div class="relative flex-1">
                             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                            <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="Tìm kiếm tin nhắn..." class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none">
+                            <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="Tra cứu theo tiêu đề, người gửi/nhận, nội dung..." class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none">
+                        </div>
+
+                        <!-- Lọc theo Ngày -->
+                        <div class="relative w-44">
+                            <input type="date" id="search-date" onchange="handleDateSearch(this.value)" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs focus:ring-2 focus:ring-primary-500 focus:outline-none">
                         </div>
                     </div>
-                    <span id="current-folder-title" class="font-bold text-base">Hộp thư đến</span>
+                    <span id="current-folder-title" class="font-bold text-base shrink-0">Hộp thư đến</span>
                 </header>
 
                 <div id="messaging-view" class="flex-1 flex overflow-hidden">
                     <div class="w-96 border-r border-slate-200 bg-white dark:bg-slate-800 flex flex-col shrink-0">
-                        <div id="message-list" class="flex-1 overflow-y-auto divide-y divide-slate-100"></div>
+                        <div id="message-list" class="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700/50"></div>
                     </div>
                     <div id="message-detail" class="flex-1 bg-slate-50 dark:bg-slate-900 flex flex-col overflow-y-auto p-8">
                         <div class="m-auto text-center text-slate-400">
@@ -215,30 +230,37 @@
             </main>
         </div>
 
-        <!-- 3. MODAL SOẠN THƯ -->
+        <!-- 3. MODAL SOẠN THƯ (TÍNH NĂNG GỬI FILE & ẢNH) -->
         <div id="compose-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden p-4">
-            <div class="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col">
-                <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+            <div class="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col">
+                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
                     <h3 class="font-bold text-lg">Soạn tin nhắn mới</h3>
-                    <button onclick="closeComposeModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-100 flex items-center justify-center">
+                    <button onclick="closeComposeModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
                 <form id="compose-form" onsubmit="sendEmail(event)" class="p-6 space-y-4">
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Gửi tới</label>
-                        <select id="compose-recipient" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none">
+                        <select id="compose-recipient" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none">
                             <option value="public">🌐 Bảng tin chung (Tất cả mọi người)</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Tiêu đề</label>
-                        <input type="text" id="compose-subject" required placeholder="Nhập tiêu đề..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none">
+                        <input type="text" id="compose-subject" required placeholder="Nhập tiêu đề..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Nội dung</label>
-                        <textarea id="compose-body" rows="6" required placeholder="Nhập nội dung tin nhắn..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"></textarea>
+                        <textarea id="compose-body" rows="5" required placeholder="Nhập nội dung tin nhắn..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"></textarea>
                     </div>
+
+                    <!-- Ô đính kèm tệp & hình ảnh -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Tệp đính kèm / Hình ảnh (Tùy chọn)</label>
+                        <input type="file" id="compose-attachment" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
+                    </div>
+
                     <div class="flex items-center justify-end gap-3 pt-2">
                         <button type="button" onclick="saveDraft()" class="px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-sm font-semibold">Lưu Nháp</button>
                         <button type="submit" class="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold text-sm rounded-xl shadow-lg">Gửi Ngay</button>
@@ -247,7 +269,7 @@
             </div>
         </div>
 
-        <!-- 4. MODAL ĐỔI MẬT KHẨU (TÍNH NĂNG MỚI) -->
+        <!-- 4. MODAL ĐỔI MẬT KHẨU -->
         <div id="change-pass-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden p-4">
             <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col">
                 <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
@@ -282,6 +304,16 @@
     <script>
         let generatedOTP = null;
         let otpEmailTarget = null;
+        let searchDateQuery = '';
+
+        function validatePasswordStrength(password) {
+            if (password.length < 7) return "Mật khẩu phải từ 7 ký tự trở lên!";
+            if (!/[A-Z]/.test(password)) return "Mật khẩu phải có ít nhất 1 chữ in hoa!";
+            if (!/[a-z]/.test(password)) return "Mật khẩu phải có ít nhất 1 chữ thường!";
+            if (!/[0-9]/.test(password)) return "Mật khẩu phải có ít nhất 1 chữ số!";
+            if (!/[^A-Za-z0-9]/.test(password)) return "Mật khẩu phải có ít nhất 1 ký tự đặc biệt!";
+            return null;
+        }
 
         async function hashPassword(str) {
             const encoder = new TextEncoder();
@@ -298,8 +330,8 @@
 
         async function initDatabase() {
             if (!localStorage.getItem('cloudshare_users_v2')) {
-                const defaultAdminPass = await hashPassword('admin123');
-                const defaultUserPass = await hashPassword('123');
+                const defaultAdminPass = await hashPassword('Admin@123');
+                const defaultUserPass = await hashPassword('User@123');
 
                 const initialUsers = [
                     { id: 'admin_1', name: 'Quản Trị Viên (Admin)', email: 'admin@gmail.com', passwordHash: defaultAdminPass, role: 'admin' },
@@ -314,7 +346,7 @@
                     {
                         id: 'm1', senderId: 'u1', senderName: 'Nguyễn Văn An', senderEmail: 'an@example.com',
                         recipientId: 'u2', recipientName: 'Trần Thị Bình', subject: 'Chào mừng bạn đến với hệ thống!',
-                        body: 'Xin chào Bình, đây là hệ thống nhắn tin bảo mật tích hợp mã OTP và Admin.', timestamp: new Date().toISOString(), read: false, folder: 'inbox'
+                        body: 'Xin chào Bình, đây là bản nâng cấp có gửi tệp và tìm kiếm ngày.', timestamp: new Date().toISOString(), read: false, folder: 'inbox', attachment: null
                     }
                 ]));
             }
@@ -329,7 +361,6 @@
             }
         });
 
-        // Chuyển đổi giao diện Đăng nhập / Đăng ký / Quên MK
         let isRegisterMode = false;
         document.getElementById('auth-switch-btn').addEventListener('click', () => {
             isRegisterMode = !isRegisterMode;
@@ -357,14 +388,12 @@
             let users = JSON.parse(localStorage.getItem('cloudshare_users_v2'));
             const user = users.find(u => u.email === email);
 
-            if (!user) {
-                return alert('Email này chưa được đăng ký trong hệ thống!');
-            }
+            if (!user) return alert('Email này chưa được đăng ký!');
 
             generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
             otpEmailTarget = email;
 
-            alert(`[DEMO HE THONG] Mã OTP xác minh của bạn là: ${generatedOTP}\n\n(Vui lòng nhập mã này vào ô bên dưới để đặt mật khẩu mới)`);
+            alert(`[DEMO HỆ THỐNG] Mã OTP của bạn là: ${generatedOTP}`);
 
             document.getElementById('forgot-step-1').classList.add('hidden');
             document.getElementById('forgot-step-2').classList.remove('hidden');
@@ -375,12 +404,10 @@
             const inputOTP = document.getElementById('forgot-otp').value.trim();
             const newPassword = document.getElementById('forgot-new-password').value;
 
-            if (inputOTP !== generatedOTP) {
-                return alert('Mã OTP không chính xác!');
-            }
-            if (!newPassword || newPassword.length < 3) {
-                return alert('Mật khẩu mới phải có ít nhất 3 ký tự!');
-            }
+            if (inputOTP !== generatedOTP) return alert('Mã OTP không chính xác!');
+
+            const strengthError = validatePasswordStrength(newPassword);
+            if (strengthError) return alert(strengthError);
 
             let users = JSON.parse(localStorage.getItem('cloudshare_users_v2'));
             const user = users.find(u => u.email === otpEmailTarget);
@@ -391,19 +418,13 @@
                 
                 currentUser = user;
                 localStorage.setItem('cloudshare_user', JSON.stringify(currentUser));
-                alert('Đổi mật khẩu thành công! Đang tự động đăng nhập...');
+                alert('Đổi mật khẩu thành công!');
                 showMainApp();
             }
         }
 
-        // ĐỔI MẬT KHẨU TỪ TRONG HỆ THỐNG
-        function openChangePasswordModal() {
-            document.getElementById('change-pass-modal').classList.remove('hidden');
-        }
-        function closeChangePasswordModal() {
-            document.getElementById('change-pass-modal').classList.add('hidden');
-            document.getElementById('change-pass-form').reset();
-        }
+        function openChangePasswordModal() { document.getElementById('change-pass-modal').classList.remove('hidden'); }
+        function closeChangePasswordModal() { document.getElementById('change-pass-modal').classList.add('hidden'); document.getElementById('change-pass-form').reset(); }
 
         async function handleChangePassword(e) {
             e.preventDefault();
@@ -413,15 +434,10 @@
 
             const oldPassHash = await hashPassword(oldPass);
 
-            if (oldPassHash !== currentUser.passwordHash) {
-                return alert('Mật khẩu hiện tại (cũ) không chính xác!');
-            }
-            if (newPass !== confirmNewPass) {
-                return alert('Xác nhận mật khẩu mới không trùng khớp!');
-            }
-            if (newPass.length < 3) {
-                return alert('Mật khẩu mới phải có ít nhất 3 ký tự!');
-            }
+            if (oldPassHash !== currentUser.passwordHash) return alert('Mật khẩu hiện tại không chính xác!');
+            const strengthError = validatePasswordStrength(newPass);
+            if (strengthError) return alert(strengthError);
+            if (newPass !== confirmNewPass) return alert('Xác nhận mật khẩu không trùng khớp!');
 
             const newPassHash = await hashPassword(newPass);
 
@@ -444,7 +460,6 @@
             e.preventDefault();
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
-            const passwordHash = await hashPassword(password);
             let users = JSON.parse(localStorage.getItem('cloudshare_users_v2'));
 
             if (isRegisterMode) {
@@ -452,12 +467,17 @@
                 if (!name) return alert('Vui lòng nhập tên hiển thị!');
                 if (users.some(u => u.email === email)) return alert('Email đã tồn tại!');
                 
+                const strengthError = validatePasswordStrength(password);
+                if (strengthError) return alert(strengthError);
+
+                const passwordHash = await hashPassword(password);
                 const newUser = { id: 'u_' + Date.now(), name, email, passwordHash, role: 'user' };
                 users.push(newUser);
                 localStorage.setItem('cloudshare_users_v2', JSON.stringify(users));
                 currentUser = newUser;
                 alert('Đăng ký thành công!');
             } else {
+                const passwordHash = await hashPassword(password);
                 const user = users.find(u => u.email === email && u.passwordHash === passwordHash);
                 if (!user) return alert('Sai email hoặc mật khẩu!');
                 currentUser = user;
@@ -468,7 +488,7 @@
         });
 
         function handleLogout() {
-            if (confirm('Bạn muốn đăng xuất khỏi hệ thống?')) {
+            if (confirm('Bạn muốn đăng xuất?')) {
                 localStorage.removeItem('cloudshare_user');
                 currentUser = null;
                 window.location.reload();
@@ -548,7 +568,7 @@
         }
 
         function deleteUserByAdmin(userId) {
-            if (confirm('Bạn có chắc chắn muốn xóa tài khoản này và toàn bộ tin nhắn liên quan?')) {
+            if (confirm('Bạn có chắc muốn xóa tài khoản này?')) {
                 let users = JSON.parse(localStorage.getItem('cloudshare_users_v2'));
                 users = users.filter(u => u.id !== userId);
                 localStorage.setItem('cloudshare_users_v2', JSON.stringify(users));
@@ -560,6 +580,83 @@
                 renderAdminUsers();
                 loadRecipientDropdown();
             }
+        }
+
+        // Đọc File thành Base64
+        function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve({ name: file.name, type: file.type, data: reader.result });
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function sendEmail(e) {
+            e.preventDefault();
+            const recipientId = document.getElementById('compose-recipient').value;
+            const subject = document.getElementById('compose-subject').value;
+            const body = document.getElementById('compose-body').value;
+            const fileInput = document.getElementById('compose-attachment');
+
+            let attachment = null;
+            if (fileInput.files.length > 0) {
+                attachment = await readFileAsBase64(fileInput.files[0]);
+            }
+
+            let users = JSON.parse(localStorage.getItem('cloudshare_users_v2'));
+            let recipientName = 'Bảng tin chung';
+            let folder = 'inbox';
+
+            if (recipientId !== 'public') {
+                const recUser = users.find(u => u.id === recipientId);
+                recipientName = recUser ? recUser.name : 'Người dùng';
+            } else {
+                folder = 'public';
+            }
+
+            const newMsg = {
+                id: 'm_' + Date.now(), senderId: currentUser.id, senderName: currentUser.name, senderEmail: currentUser.email,
+                recipientId, recipientName, subject, body, timestamp: new Date().toISOString(), read: false, folder, attachment
+            };
+
+            let messages = JSON.parse(localStorage.getItem('cloudshare_messages'));
+            messages.push(newMsg);
+            localStorage.setItem('cloudshare_messages', JSON.stringify(messages));
+
+            closeComposeModal();
+            document.getElementById('compose-form').reset();
+            alert('Gửi tin nhắn thành công!');
+            renderApp();
+        }
+
+        async function saveDraft() {
+            const recipientId = document.getElementById('compose-recipient').value;
+            const subject = document.getElementById('compose-subject').value;
+            const body = document.getElementById('compose-body').value;
+            const fileInput = document.getElementById('compose-attachment');
+
+            let attachment = null;
+            if (fileInput.files.length > 0) {
+                attachment = await readFileAsBase64(fileInput.files[0]);
+            }
+
+            let users = JSON.parse(localStorage.getItem('cloudshare_users_v2'));
+            let recipientName = recipientId === 'public' ? 'Bảng tin chung' : (users.find(u => u.id === recipientId)?.name || 'Nháp');
+
+            const newMsg = {
+                id: 'm_' + Date.now(), senderId: currentUser.id, senderName: currentUser.name, senderEmail: currentUser.email,
+                recipientId, recipientName, subject: subject || '(Không tiêu đề)', body, timestamp: new Date().toISOString(), read: true, folder: 'drafts', attachment
+            };
+
+            let messages = JSON.parse(localStorage.getItem('cloudshare_messages'));
+            messages.push(newMsg);
+            localStorage.setItem('cloudshare_messages', JSON.stringify(messages));
+
+            closeComposeModal();
+            document.getElementById('compose-form').reset();
+            alert('Đã lưu vào Thư nháp!');
+            renderApp();
         }
 
         function renderApp() {
@@ -582,14 +679,28 @@
                 return false;
             });
 
+            // Lọc theo Từ khóa (Tiêu đề, Tên, Nội dung)
             if (searchQuery) {
                 const q = searchQuery.toLowerCase();
-                filtered = filtered.filter(m => m.subject.toLowerCase().includes(q) || m.body.toLowerCase().includes(q));
+                filtered = filtered.filter(m => 
+                    m.subject.toLowerCase().includes(q) || 
+                    m.body.toLowerCase().includes(q) || 
+                    m.senderName.toLowerCase().includes(q) ||
+                    m.recipientName.toLowerCase().includes(q)
+                );
+            }
+
+            // Lọc theo Ngày (YYYY-MM-DD)
+            if (searchDateQuery) {
+                filtered = filtered.filter(m => {
+                    const msgDate = new Date(m.timestamp).toISOString().split('T')[0];
+                    return msgDate === searchDateQuery;
+                });
             }
 
             const listEl = document.getElementById('message-list');
             if (filtered.length === 0) {
-                listEl.innerHTML = `<div class="p-8 text-center text-slate-400 text-sm">Trống</div>`;
+                listEl.innerHTML = `<div class="p-8 text-center text-slate-400 text-sm">Không tìm thấy tin nhắn nào</div>`;
                 document.getElementById('message-detail').innerHTML = `<div class="m-auto text-center text-slate-400"><p class="text-sm">Không có tin nhắn</p></div>`;
                 return;
             }
@@ -604,7 +715,10 @@
                             <span class="text-xs text-slate-400">${new Date(m.timestamp).toLocaleDateString()}</span>
                         </div>
                         <h4 class="text-sm font-medium truncate">${m.subject}</h4>
-                        <p class="text-xs text-slate-500 truncate mt-1">${m.body}</p>
+                        <div class="flex items-center justify-between mt-1">
+                            <p class="text-xs text-slate-500 truncate flex-1">${m.body}</p>
+                            ${m.attachment ? `<i class="fa-solid fa-paperclip text-slate-400 text-xs ml-2"></i>` : ''}
+                        </div>
                     </div>
                 `;
             });
@@ -626,10 +740,33 @@
 
             renderApp();
 
+            // Hiển thị Tệp / Hình ảnh nếu có
+            let attachmentHtml = '';
+            if (msg.attachment) {
+                const isImage = msg.attachment.type.startsWith('image/');
+                if (isImage) {
+                    attachmentHtml = `
+                        <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700">
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Hình ảnh đính kèm:</p>
+                            <img src="${msg.attachment.data}" alt="${msg.attachment.name}" class="max-h-64 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm object-cover">
+                        </div>
+                    `;
+                } else {
+                    attachmentHtml = `
+                        <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700">
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Tệp đính kèm:</p>
+                            <a href="${msg.attachment.data}" download="${msg.attachment.name}" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl text-xs font-semibold transition">
+                                <i class="fa-solid fa-file-arrow-down text-primary-500"></i> Tải xuống ${msg.attachment.name}
+                            </a>
+                        </div>
+                    `;
+                }
+            }
+
             document.getElementById('message-detail').innerHTML = `
                 <div class="p-8 max-w-3xl w-full mx-auto">
-                    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200">
-                        <div class="flex items-start justify-between border-b border-slate-100 pb-4 mb-6">
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+                        <div class="flex items-start justify-between border-b border-slate-100 dark:border-slate-700 pb-4 mb-6">
                             <div>
                                 <h2 class="text-xl font-bold mb-2">${msg.subject}</h2>
                                 <p class="text-sm text-slate-500">Từ: <span class="font-semibold">${msg.senderName}</span> (${msg.senderEmail})</p>
@@ -637,8 +774,9 @@
                             </div>
                             <span class="text-xs text-slate-400">${new Date(msg.timestamp).toLocaleString()}</span>
                         </div>
-                        <div class="prose max-w-none text-sm leading-relaxed whitespace-pre-wrap mb-8 text-slate-700">${msg.body}</div>
-                        <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+                        <div class="prose max-w-none text-sm leading-relaxed whitespace-pre-wrap text-slate-700 dark:text-slate-300">${msg.body}</div>
+                        ${attachmentHtml}
+                        <div class="flex items-center gap-3 pt-6 mt-6 border-t border-slate-100 dark:border-slate-700">
                             <button onclick="moveToTrash('${msg.id}')" class="px-4 py-2 bg-red-50 text-red-600 rounded-xl text-sm font-semibold hover:bg-red-100">Xóa tin nhắn</button>
                         </div>
                     </div>
@@ -648,61 +786,6 @@
 
         function openComposeModal() { document.getElementById('compose-modal').classList.remove('hidden'); }
         function closeComposeModal() { document.getElementById('compose-modal').classList.add('hidden'); }
-
-        function sendEmail(e) {
-            e.preventDefault();
-            const recipientId = document.getElementById('compose-recipient').value;
-            const subject = document.getElementById('compose-subject').value;
-            const body = document.getElementById('compose-body').value;
-
-            let users = JSON.parse(localStorage.getItem('cloudshare_users_v2'));
-            let recipientName = 'Bảng tin chung';
-            let folder = 'inbox';
-
-            if (recipientId !== 'public') {
-                const recUser = users.find(u => u.id === recipientId);
-                recipientName = recUser ? recUser.name : 'Người dùng';
-            } else {
-                folder = 'public';
-            }
-
-            const newMsg = {
-                id: 'm_' + Date.now(), senderId: currentUser.id, senderName: currentUser.name, senderEmail: currentUser.email,
-                recipientId, recipientName, subject, body, timestamp: new Date().toISOString(), read: false, folder
-            };
-
-            let messages = JSON.parse(localStorage.getItem('cloudshare_messages'));
-            messages.push(newMsg);
-            localStorage.setItem('cloudshare_messages', JSON.stringify(messages));
-
-            closeComposeModal();
-            document.getElementById('compose-form').reset();
-            alert('Gửi tin nhắn thành công!');
-            renderApp();
-        }
-
-        function saveDraft() {
-            const recipientId = document.getElementById('compose-recipient').value;
-            const subject = document.getElementById('compose-subject').value;
-            const body = document.getElementById('compose-body').value;
-
-            let users = JSON.parse(localStorage.getItem('cloudshare_users_v2'));
-            let recipientName = recipientId === 'public' ? 'Bảng tin chung' : (users.find(u => u.id === recipientId)?.name || 'Nháp');
-
-            const newMsg = {
-                id: 'm_' + Date.now(), senderId: currentUser.id, senderName: currentUser.name, senderEmail: currentUser.email,
-                recipientId, recipientName, subject: subject || '(Không tiêu đề)', body, timestamp: new Date().toISOString(), read: true, folder: 'drafts'
-            };
-
-            let messages = JSON.parse(localStorage.getItem('cloudshare_messages'));
-            messages.push(newMsg);
-            localStorage.setItem('cloudshare_messages', JSON.stringify(messages));
-
-            closeComposeModal();
-            document.getElementById('compose-form').reset();
-            alert('Đã lưu vào Thư nháp!');
-            renderApp();
-        }
 
         function moveToTrash(id) {
             let messages = JSON.parse(localStorage.getItem('cloudshare_messages'));
@@ -716,6 +799,7 @@
         }
 
         function handleSearch(val) { searchQuery = val; renderApp(); }
+        function handleDateSearch(val) { searchDateQuery = val; renderApp(); }
         function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
     </script>
 </body>
