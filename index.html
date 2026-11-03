@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Chia Sẻ Thông Tin & Nhắn Tin (Admin Ready)</title>
+    <title>CloudShare - Hệ Thống Chia Sẻ & Quản Lý Mật Khẩu</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -25,7 +25,7 @@
 
     <div id="app" class="h-full flex flex-col">
 
-        <!-- 1. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ -->
+        <!-- 1. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ / QUÊN MẬT KHẨU -->
         <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
             <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl p-8 border border-slate-100 dark:border-slate-700">
                 <div class="text-center mb-8">
@@ -33,9 +33,10 @@
                         <i class="fa-solid fa-paper-plane"></i>
                     </div>
                     <h1 id="auth-title" class="text-2xl font-bold tracking-tight">Đăng nhập vào Hệ thống</h1>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Bảo mật mã hóa mật khẩu SHA-256</p>
+                    <p id="auth-subtitle" class="text-sm text-slate-500 dark:text-slate-400 mt-1">Bảo mật mã hóa mật khẩu SHA-256</p>
                 </div>
 
+                <!-- Form Đăng nhập & Đăng ký -->
                 <form id="auth-form" class="space-y-4">
                     <div id="name-group" class="hidden">
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Tên hiển thị</label>
@@ -45,14 +46,47 @@
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Email</label>
                         <input type="email" id="auth-email" required placeholder="name@example.com" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-primary-500 focus:outline-none transition">
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Mật khẩu</label>
+                    <div id="password-group">
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Mật khẩu</label>
+                            <button type="button" onclick="showForgotPasswordScreen()" class="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline">Quên mật khẩu?</button>
+                        </div>
                         <input type="password" id="auth-password" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-primary-500 focus:outline-none transition">
                     </div>
 
                     <button type="submit" id="auth-submit-btn" class="w-full py-3 px-4 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl shadow-lg shadow-primary-600/30 transition duration-200">
                         Đăng Nhập
                     </button>
+                </form>
+
+                <!-- Form Quên Mật Khẩu -->
+                <form id="forgot-form" class="space-y-4 hidden" onsubmit="handleForgotPassword(event)">
+                    <div id="forgot-step-1" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Email khôi phục</label>
+                            <input type="email" id="forgot-email" required placeholder="Nhập email đã đăng ký..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-primary-500 focus:outline-none transition">
+                        </div>
+                        <button type="button" onclick="sendOTP()" class="w-full py-3 px-4 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl shadow-lg shadow-primary-600/30 transition">
+                            Gửi Mã OTP Đến Email
+                        </button>
+                    </div>
+
+                    <div id="forgot-step-2" class="space-y-4 hidden">
+                        <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 p-3 rounded-xl text-xs text-amber-700 dark:text-amber-400">
+                            Mã OTP đã được tạo! Nhập mã OTP và mật khẩu mới bên dưới.
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Mã OTP (6 chữ số)</label>
+                            <input type="text" id="forgot-otp" placeholder="123456" maxlength="6" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-center tracking-widest font-bold text-lg focus:ring-2 focus:ring-primary-500 focus:outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Mật khẩu mới</label>
+                            <input type="password" id="forgot-new-password" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-primary-500 focus:outline-none transition">
+                        </div>
+                        <button type="submit" class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-lg transition">
+                            Đổi Mật Khẩu & Đăng Nhập
+                        </button>
+                    </div>
                 </form>
 
                 <div class="mt-6 text-center text-sm">
@@ -64,11 +98,8 @@
 
         <!-- 2. GIAO DIỆN CHÍNH -->
         <div id="main-app" class="h-full flex overflow-hidden hidden">
-            
-            <!-- Sidebar -->
             <aside class="w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col justify-between shrink-0">
                 <div>
-                    <!-- Logo / Brand -->
                     <div class="p-5 flex items-center justify-between border-b border-slate-100 dark:border-slate-700/50">
                         <div class="flex items-center gap-3">
                             <div class="w-9 h-9 rounded-xl bg-primary-500 text-white flex items-center justify-center font-bold shadow-md shadow-primary-500/20">
@@ -82,96 +113,93 @@
                         </button>
                     </div>
 
-                    <!-- Nút Soạn Thư -->
                     <div class="p-4">
-                        <button onclick="openComposeModal()" class="w-full py-3 px-4 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl shadow-md shadow-primary-600/20 flex items-center justify-center gap-2 transition">
+                        <button onclick="openComposeModal()" class="w-full py-3 px-4 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl shadow-md flex items-center justify-center gap-2 transition">
                             <i class="fa-solid fa-pen-to-square"></i> Soạn Tin / Thư
                         </button>
                     </div>
 
-                    <!-- Thư mục điều hướng -->
                     <nav class="px-3 space-y-1">
-                        <button onclick="switchFolder('inbox')" id="nav-inbox" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 transition">
+                        <button onclick="switchFolder('inbox')" id="nav-inbox" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium bg-primary-50 text-primary-600 transition">
                             <span class="flex items-center gap-3"><i class="fa-solid fa-inbox w-5"></i> Hộp thư đến</span>
                             <span id="badge-inbox" class="px-2 py-0.5 text-xs rounded-full bg-primary-500 text-white font-semibold">0</span>
                         </button>
-                        <button onclick="switchFolder('public')" id="nav-public" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition">
+                        <button onclick="switchFolder('public')" id="nav-public" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
                             <span class="flex items-center gap-3"><i class="fa-solid fa-globe w-5"></i> Bảng tin chung</span>
-                            <span id="badge-public" class="px-2 py-0.5 text-xs rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">0</span>
+                            <span id="badge-public" class="px-2 py-0.5 text-xs rounded-full bg-slate-200 text-slate-700">0</span>
                         </button>
-                        <button onclick="switchFolder('sent')" id="nav-sent" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition">
+                        <button onclick="switchFolder('sent')" id="nav-sent" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
                             <span class="flex items-center gap-3"><i class="fa-solid fa-paper-plane w-5"></i> Đã gửi</span>
                         </button>
-                        <button onclick="switchFolder('drafts')" id="nav-drafts" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition">
+                        <button onclick="switchFolder('drafts')" id="nav-drafts" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
                             <span class="flex items-center gap-3"><i class="fa-solid fa-file-pen w-5"></i> Thư nháp</span>
-                            <span id="badge-drafts" class="px-2 py-0.5 text-xs rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">0</span>
+                            <span id="badge-drafts" class="px-2 py-0.5 text-xs rounded-full bg-slate-200 text-slate-700">0</span>
                         </button>
-                        <button onclick="switchFolder('trash')" id="nav-trash" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition">
+                        <button onclick="switchFolder('trash')" id="nav-trash" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
                             <span class="flex items-center gap-3"><i class="fa-solid fa-trash w-5"></i> Thùng rác</span>
                         </button>
-
-                        <!-- Tab Quản Trị Hệ Thống (Chỉ Admin thấy) -->
-                        <button onclick="switchFolder('admin')" id="nav-admin" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition hidden">
+                        <button onclick="switchFolder('admin')" id="nav-admin" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-amber-600 hover:bg-amber-50 transition hidden">
                             <span class="flex items-center gap-3"><i class="fa-solid fa-user-shield w-5"></i> Quản Trị Hệ Thống</span>
                         </button>
                     </nav>
                 </div>
 
-                <!-- User Info -->
-                <div class="p-4 border-t border-slate-200 dark:border-slate-700 space-y-3">
-                    <div class="flex items-center gap-3 px-2">
+                <div class="p-4 border-t border-slate-200 space-y-2">
+                    <div class="flex items-center gap-3 px-2 mb-2">
                         <div id="user-avatar" class="w-10 h-10 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-sm shadow">U</div>
                         <div class="overflow-hidden">
                             <div class="flex items-center gap-1">
                                 <p id="user-display-name" class="font-semibold text-sm truncate">Tên người dùng</p>
                                 <span id="admin-badge" class="px-1.5 py-0.5 text-[10px] bg-amber-500 text-white rounded font-bold hidden">ADMIN</span>
                             </div>
-                            <p id="user-display-email" class="text-xs text-slate-500 dark:text-slate-400 truncate">email@example.com</p>
+                            <p id="user-display-email" class="text-xs text-slate-500 truncate">email@example.com</p>
                         </div>
                     </div>
-                    <button onclick="handleLogout()" class="w-full py-2.5 px-4 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 font-semibold rounded-xl text-sm flex items-center justify-center gap-2 transition border border-red-200 dark:border-red-900/50">
+
+                    <!-- Nút Đổi Mật Khẩu -->
+                    <button onclick="openChangePasswordModal()" class="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200 font-medium rounded-xl text-xs flex items-center justify-center gap-2 transition">
+                        <i class="fa-solid fa-key"></i> Đổi mật khẩu
+                    </button>
+
+                    <!-- Nút Đăng Xuất -->
+                    <button onclick="handleLogout()" class="w-full py-2 px-3 bg-red-50 hover:bg-red-100 text-red-600 font-medium rounded-xl text-xs flex items-center justify-center gap-2 border border-red-200 transition">
                         <i class="fa-solid fa-right-from-bracket"></i> Đăng Xuất
                     </button>
                 </div>
             </aside>
 
-            <!-- Main Content Area -->
             <main class="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-900">
-                <header class="h-16 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 flex items-center justify-between shrink-0">
+                <header class="h-16 bg-white dark:bg-slate-800 border-b border-slate-200 px-6 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-4 w-96">
                         <div class="relative w-full">
                             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                            <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="Tìm kiếm tin nhắn, người gửi..." class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none transition">
+                            <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="Tìm kiếm tin nhắn..." class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none">
                         </div>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <span id="current-folder-title" class="font-bold text-base text-slate-700 dark:text-slate-200">Hộp thư đến</span>
-                    </div>
+                    <span id="current-folder-title" class="font-bold text-base">Hộp thư đến</span>
                 </header>
 
-                <!-- Normal Messaging Split View -->
                 <div id="messaging-view" class="flex-1 flex overflow-hidden">
-                    <div class="w-96 border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex flex-col shrink-0">
-                        <div id="message-list" class="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700/50"></div>
+                    <div class="w-96 border-r border-slate-200 bg-white dark:bg-slate-800 flex flex-col shrink-0">
+                        <div id="message-list" class="flex-1 overflow-y-auto divide-y divide-slate-100"></div>
                     </div>
                     <div id="message-detail" class="flex-1 bg-slate-50 dark:bg-slate-900 flex flex-col overflow-y-auto p-8">
                         <div class="m-auto text-center text-slate-400">
                             <i class="fa-regular fa-envelope-open text-5xl mb-3"></i>
-                            <p class="text-sm font-medium">Chọn một tin nhắn để xem nội dung chi tiết</p>
+                            <p class="text-sm font-medium">Chọn một tin nhắn để xem nội dung</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Admin Dashboard View -->
                 <div id="admin-view" class="flex-1 p-8 overflow-y-auto hidden">
                     <div class="max-w-4xl mx-auto space-y-6">
                         <div class="flex items-center justify-between">
                             <h2 class="text-2xl font-bold">Danh sách Người Dùng Hệ Thống</h2>
-                            <span class="text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/40 px-3 py-1.5 rounded-lg border border-amber-200 font-semibold">Quyền Quản Trị Viên (Admin)</span>
+                            <span class="text-xs text-amber-600 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200 font-semibold">Quyền Quản Trị Viên</span>
                         </div>
-                        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                             <table class="w-full text-left text-sm">
-                                <thead class="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700 text-xs uppercase font-semibold text-slate-500">
+                                <thead class="bg-slate-50 border-b border-slate-200 text-xs uppercase font-semibold text-slate-500">
                                     <tr>
                                         <th class="p-4">Tên hiển thị</th>
                                         <th class="p-4">Email</th>
@@ -179,7 +207,7 @@
                                         <th class="p-4 text-right">Hành động</th>
                                     </tr>
                                 </thead>
-                                <tbody id="admin-users-table" class="divide-y divide-slate-100 dark:divide-slate-700/50"></tbody>
+                                <tbody id="admin-users-table" class="divide-y divide-slate-100"></tbody>
                             </table>
                         </div>
                     </div>
@@ -187,33 +215,63 @@
             </main>
         </div>
 
-        <!-- Compose Modal -->
+        <!-- 3. MODAL SOẠN THƯ -->
         <div id="compose-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden p-4">
-            <div class="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col">
-                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+            <div class="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col">
+                <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
                     <h3 class="font-bold text-lg">Soạn tin nhắn mới</h3>
-                    <button onclick="closeComposeModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center transition">
+                    <button onclick="closeComposeModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-100 flex items-center justify-center">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
                 <form id="compose-form" onsubmit="sendEmail(event)" class="p-6 space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Gửi tới</label>
-                        <select id="compose-recipient" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none transition">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Gửi tới</label>
+                        <select id="compose-recipient" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none">
                             <option value="public">🌐 Bảng tin chung (Tất cả mọi người)</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Tiêu đề</label>
-                        <input type="text" id="compose-subject" required placeholder="Nhập tiêu đề..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none transition">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Tiêu đề</label>
+                        <input type="text" id="compose-subject" required placeholder="Nhập tiêu đề..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Nội dung</label>
-                        <textarea id="compose-body" rows="6" required placeholder="Nhập nội dung tin nhắn..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none transition"></textarea>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Nội dung</label>
+                        <textarea id="compose-body" rows="6" required placeholder="Nhập nội dung tin nhắn..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"></textarea>
                     </div>
                     <div class="flex items-center justify-end gap-3 pt-2">
-                        <button type="button" onclick="saveDraft()" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 text-sm font-semibold transition">Lưu Nháp</button>
-                        <button type="submit" class="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold text-sm rounded-xl shadow-lg shadow-primary-600/30 transition">Gửi Ngay</button>
+                        <button type="button" onclick="saveDraft()" class="px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-sm font-semibold">Lưu Nháp</button>
+                        <button type="submit" class="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold text-sm rounded-xl shadow-lg">Gửi Ngay</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 4. MODAL ĐỔI MẬT KHẨU (TÍNH NĂNG MỚI) -->
+        <div id="change-pass-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden p-4">
+            <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col">
+                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                    <h3 class="font-bold text-lg">Đổi mật khẩu tài khoản</h3>
+                    <button onclick="closeChangePasswordModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <form id="change-pass-form" onsubmit="handleChangePassword(event)" class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Mật khẩu hiện tại (cũ)</label>
+                        <input type="password" id="old-pass" required placeholder="••••••••" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Mật khẩu mới</label>
+                        <input type="password" id="new-pass" required placeholder="••••••••" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Xác nhận mật khẩu mới</label>
+                        <input type="password" id="confirm-new-pass" required placeholder="••••••••" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none">
+                    </div>
+                    <div class="flex items-center justify-end gap-3 pt-2">
+                        <button type="button" onclick="closeChangePasswordModal()" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-semibold">Hủy</button>
+                        <button type="submit" class="px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold text-sm rounded-xl shadow-lg">Lưu Mật Khẩu</button>
                     </div>
                 </form>
             </div>
@@ -222,7 +280,9 @@
     </div>
 
     <script>
-        // SHA-256 Hashing Function
+        let generatedOTP = null;
+        let otpEmailTarget = null;
+
         async function hashPassword(str) {
             const encoder = new TextEncoder();
             const data = encoder.encode(str);
@@ -236,7 +296,6 @@
         let currentSelectedMsgId = null;
         let searchQuery = '';
 
-        // Initialize Users with Admin Account & SHA-256 Hashes
         async function initDatabase() {
             if (!localStorage.getItem('cloudshare_users_v2')) {
                 const defaultAdminPass = await hashPassword('admin123');
@@ -255,7 +314,7 @@
                     {
                         id: 'm1', senderId: 'u1', senderName: 'Nguyễn Văn An', senderEmail: 'an@example.com',
                         recipientId: 'u2', recipientName: 'Trần Thị Bình', subject: 'Chào mừng bạn đến với hệ thống!',
-                        body: 'Xin chào Bình, đây là hệ thống nhắn tin bảo mật tích hợp quyền Admin.', timestamp: new Date().toISOString(), read: false, folder: 'inbox'
+                        body: 'Xin chào Bình, đây là hệ thống nhắn tin bảo mật tích hợp mã OTP và Admin.', timestamp: new Date().toISOString(), read: false, folder: 'inbox'
                     }
                 ]));
             }
@@ -270,16 +329,116 @@
             }
         });
 
-        // Auth Handler
+        // Chuyển đổi giao diện Đăng nhập / Đăng ký / Quên MK
         let isRegisterMode = false;
         document.getElementById('auth-switch-btn').addEventListener('click', () => {
             isRegisterMode = !isRegisterMode;
+            document.getElementById('auth-form').classList.remove('hidden');
+            document.getElementById('forgot-form').classList.add('hidden');
+            
             document.getElementById('auth-title').textContent = isRegisterMode ? "Tạo tài khoản mới" : "Đăng nhập vào Hệ thống";
             document.getElementById('auth-submit-btn').textContent = isRegisterMode ? "Đăng Ký" : "Đăng Nhập";
             document.getElementById('name-group').classList.toggle('hidden', !isRegisterMode);
             document.getElementById('auth-switch-text').textContent = isRegisterMode ? "Đã có tài khoản?" : "Chưa có tài khoản?";
             document.getElementById('auth-switch-btn').textContent = isRegisterMode ? "Đăng nhập" : "Đăng ký ngay";
         });
+
+        function showForgotPasswordScreen() {
+            document.getElementById('auth-form').classList.add('hidden');
+            document.getElementById('forgot-form').classList.remove('hidden');
+            document.getElementById('auth-title').textContent = "Khôi phục Mật khẩu";
+            document.getElementById('auth-subtitle').textContent = "Nhận mã OTP xác minh qua Email";
+            document.getElementById('forgot-step-1').classList.remove('hidden');
+            document.getElementById('forgot-step-2').classList.add('hidden');
+        }
+
+        function sendOTP() {
+            const email = document.getElementById('forgot-email').value.trim();
+            let users = JSON.parse(localStorage.getItem('cloudshare_users_v2'));
+            const user = users.find(u => u.email === email);
+
+            if (!user) {
+                return alert('Email này chưa được đăng ký trong hệ thống!');
+            }
+
+            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+            otpEmailTarget = email;
+
+            alert(`[DEMO HE THONG] Mã OTP xác minh của bạn là: ${generatedOTP}\n\n(Vui lòng nhập mã này vào ô bên dưới để đặt mật khẩu mới)`);
+
+            document.getElementById('forgot-step-1').classList.add('hidden');
+            document.getElementById('forgot-step-2').classList.remove('hidden');
+        }
+
+        async function handleForgotPassword(e) {
+            e.preventDefault();
+            const inputOTP = document.getElementById('forgot-otp').value.trim();
+            const newPassword = document.getElementById('forgot-new-password').value;
+
+            if (inputOTP !== generatedOTP) {
+                return alert('Mã OTP không chính xác!');
+            }
+            if (!newPassword || newPassword.length < 3) {
+                return alert('Mật khẩu mới phải có ít nhất 3 ký tự!');
+            }
+
+            let users = JSON.parse(localStorage.getItem('cloudshare_users_v2'));
+            const user = users.find(u => u.email === otpEmailTarget);
+
+            if (user) {
+                user.passwordHash = await hashPassword(newPassword);
+                localStorage.setItem('cloudshare_users_v2', JSON.stringify(users));
+                
+                currentUser = user;
+                localStorage.setItem('cloudshare_user', JSON.stringify(currentUser));
+                alert('Đổi mật khẩu thành công! Đang tự động đăng nhập...');
+                showMainApp();
+            }
+        }
+
+        // ĐỔI MẬT KHẨU TỪ TRONG HỆ THỐNG
+        function openChangePasswordModal() {
+            document.getElementById('change-pass-modal').classList.remove('hidden');
+        }
+        function closeChangePasswordModal() {
+            document.getElementById('change-pass-modal').classList.add('hidden');
+            document.getElementById('change-pass-form').reset();
+        }
+
+        async function handleChangePassword(e) {
+            e.preventDefault();
+            const oldPass = document.getElementById('old-pass').value;
+            const newPass = document.getElementById('new-pass').value;
+            const confirmNewPass = document.getElementById('confirm-new-pass').value;
+
+            const oldPassHash = await hashPassword(oldPass);
+
+            if (oldPassHash !== currentUser.passwordHash) {
+                return alert('Mật khẩu hiện tại (cũ) không chính xác!');
+            }
+            if (newPass !== confirmNewPass) {
+                return alert('Xác nhận mật khẩu mới không trùng khớp!');
+            }
+            if (newPass.length < 3) {
+                return alert('Mật khẩu mới phải có ít nhất 3 ký tự!');
+            }
+
+            const newPassHash = await hashPassword(newPass);
+
+            let users = JSON.parse(localStorage.getItem('cloudshare_users_v2'));
+            const userIdx = users.findIndex(u => u.id === currentUser.id);
+
+            if (userIdx !== -1) {
+                users[userIdx].passwordHash = newPassHash;
+                currentUser.passwordHash = newPassHash;
+
+                localStorage.setItem('cloudshare_users_v2', JSON.stringify(users));
+                localStorage.setItem('cloudshare_user', JSON.stringify(currentUser));
+
+                alert('Cập nhật mật khẩu thành công!');
+                closeChangePasswordModal();
+            }
+        }
 
         document.getElementById('auth-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -377,7 +536,7 @@
                 html += `
                     <tr>
                         <td class="p-4 font-semibold">${u.name}</td>
-                        <td class="p-4 text-slate-500 dark:text-slate-400">${u.email}</td>
+                        <td class="p-4 text-slate-500">${u.email}</td>
                         <td class="p-4"><span class="px-2 py-0.5 rounded text-xs font-bold ${u.role === 'admin' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700'}">${u.role.toUpperCase()}</span></td>
                         <td class="p-4 text-right">
                             ${u.role !== 'admin' ? `<button onclick="deleteUserByAdmin('${u.id}')" class="px-3 py-1 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-semibold hover:bg-red-100">Xóa tài khoản</button>` : `<span class="text-xs text-slate-400">Không thể xóa</span>`}
@@ -437,7 +596,7 @@
 
             let html = '';
             filtered.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(m => {
-                const activeClass = currentSelectedMsgId === m.id ? 'bg-primary-50/60 dark:bg-primary-900/20' : 'hover:bg-slate-50 dark:hover:bg-slate-700/30';
+                const activeClass = currentSelectedMsgId === m.id ? 'bg-primary-50/60' : 'hover:bg-slate-50';
                 html += `
                     <div onclick="selectMessage('${m.id}')" class="p-4 cursor-pointer transition ${activeClass}">
                         <div class="flex items-center justify-between mb-1">
@@ -469,8 +628,8 @@
 
             document.getElementById('message-detail').innerHTML = `
                 <div class="p-8 max-w-3xl w-full mx-auto">
-                    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
-                        <div class="flex items-start justify-between border-b border-slate-100 dark:border-slate-700 pb-4 mb-6">
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200">
+                        <div class="flex items-start justify-between border-b border-slate-100 pb-4 mb-6">
                             <div>
                                 <h2 class="text-xl font-bold mb-2">${msg.subject}</h2>
                                 <p class="text-sm text-slate-500">Từ: <span class="font-semibold">${msg.senderName}</span> (${msg.senderEmail})</p>
@@ -478,7 +637,7 @@
                             </div>
                             <span class="text-xs text-slate-400">${new Date(msg.timestamp).toLocaleString()}</span>
                         </div>
-                        <div class="prose max-w-none text-sm leading-relaxed whitespace-pre-wrap mb-8 text-slate-700 dark:text-slate-300">${msg.body}</div>
+                        <div class="prose max-w-none text-sm leading-relaxed whitespace-pre-wrap mb-8 text-slate-700">${msg.body}</div>
                         <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
                             <button onclick="moveToTrash('${msg.id}')" class="px-4 py-2 bg-red-50 text-red-600 rounded-xl text-sm font-semibold hover:bg-red-100">Xóa tin nhắn</button>
                         </div>
