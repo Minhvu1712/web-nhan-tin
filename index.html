@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Chia Sẻ Thông Tin & Nhắn Tin</title>
+    <title>Hệ Thống Chia Sẻ Thông Tin & Nhắn Tin (Admin Ready)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -23,7 +23,6 @@
 </head>
 <body class="h-full bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans antialiased transition-colors duration-200">
 
-    <!-- App Container -->
     <div id="app" class="h-full flex flex-col">
 
         <!-- 1. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ -->
@@ -34,7 +33,7 @@
                         <i class="fa-solid fa-paper-plane"></i>
                     </div>
                     <h1 id="auth-title" class="text-2xl font-bold tracking-tight">Đăng nhập vào Hệ thống</h1>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Chia sẻ thông tin và tin nhắn trực tuyến thời gian thực</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Bảo mật mã hóa mật khẩu SHA-256</p>
                 </div>
 
                 <form id="auth-form" class="space-y-4">
@@ -63,7 +62,7 @@
             </div>
         </div>
 
-        <!-- 2. GIAO DIỆN CHÍNH (SAU KHI ĐĂNG NHẬP) -->
+        <!-- 2. GIAO DIỆN CHÍNH -->
         <div id="main-app" class="h-full flex overflow-hidden hidden">
             
             <!-- Sidebar -->
@@ -110,32 +109,39 @@
                         <button onclick="switchFolder('trash')" id="nav-trash" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition">
                             <span class="flex items-center gap-3"><i class="fa-solid fa-trash w-5"></i> Thùng rác</span>
                         </button>
+
+                        <!-- Tab Quản Trị Hệ Thống (Chỉ Admin thấy) -->
+                        <button onclick="switchFolder('admin')" id="nav-admin" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition hidden">
+                            <span class="flex items-center gap-3"><i class="fa-solid fa-user-shield w-5"></i> Quản Trị Hệ Thống</span>
+                        </button>
                     </nav>
                 </div>
 
-                <!-- Thông tin tài khoản & Nút Đăng xuất -->
+                <!-- User Info -->
                 <div class="p-4 border-t border-slate-200 dark:border-slate-700 space-y-3">
                     <div class="flex items-center gap-3 px-2">
                         <div id="user-avatar" class="w-10 h-10 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-sm shadow">U</div>
                         <div class="overflow-hidden">
-                            <p id="user-display-name" class="font-semibold text-sm truncate">Tên người dùng</p>
+                            <div class="flex items-center gap-1">
+                                <p id="user-display-name" class="font-semibold text-sm truncate">Tên người dùng</p>
+                                <span id="admin-badge" class="px-1.5 py-0.5 text-[10px] bg-amber-500 text-white rounded font-bold hidden">ADMIN</span>
+                            </div>
                             <p id="user-display-email" class="text-xs text-slate-500 dark:text-slate-400 truncate">email@example.com</p>
                         </div>
                     </div>
-                    <button onclick="handleLogout()" class="w-full py-2.5 px-4 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 font-semibold rounded-xl text-sm flex items-center justify-center gap-2 transition border border-red-200 dark:border-red-900/50 shadow-sm">
-                        <i class="fa-solid fa-right-from-bracket"></i> Đăng Xuất Hệ Thống
+                    <button onclick="handleLogout()" class="w-full py-2.5 px-4 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 font-semibold rounded-xl text-sm flex items-center justify-center gap-2 transition border border-red-200 dark:border-red-900/50">
+                        <i class="fa-solid fa-right-from-bracket"></i> Đăng Xuất
                     </button>
                 </div>
             </aside>
 
             <!-- Main Content Area -->
             <main class="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-900">
-                <!-- Top Header -->
                 <header class="h-16 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-4 w-96">
                         <div class="relative w-full">
                             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                            <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="Tìm kiếm tin nhắn, nội dung, người gửi..." class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none transition">
+                            <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="Tìm kiếm tin nhắn, người gửi..." class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none transition">
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
@@ -143,16 +149,11 @@
                     </div>
                 </header>
 
-                <!-- Split View: Message List & Message Detail -->
-                <div class="flex-1 flex overflow-hidden">
-                    <!-- Message List Column -->
+                <!-- Normal Messaging Split View -->
+                <div id="messaging-view" class="flex-1 flex overflow-hidden">
                     <div class="w-96 border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex flex-col shrink-0">
-                        <div id="message-list" class="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700/50">
-                            <!-- Items populated by JS -->
-                        </div>
+                        <div id="message-list" class="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700/50"></div>
                     </div>
-
-                    <!-- Message Detail View -->
                     <div id="message-detail" class="flex-1 bg-slate-50 dark:bg-slate-900 flex flex-col overflow-y-auto p-8">
                         <div class="m-auto text-center text-slate-400">
                             <i class="fa-regular fa-envelope-open text-5xl mb-3"></i>
@@ -160,10 +161,33 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Admin Dashboard View -->
+                <div id="admin-view" class="flex-1 p-8 overflow-y-auto hidden">
+                    <div class="max-w-4xl mx-auto space-y-6">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-2xl font-bold">Danh sách Người Dùng Hệ Thống</h2>
+                            <span class="text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/40 px-3 py-1.5 rounded-lg border border-amber-200 font-semibold">Quyền Quản Trị Viên (Admin)</span>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                            <table class="w-full text-left text-sm">
+                                <thead class="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700 text-xs uppercase font-semibold text-slate-500">
+                                    <tr>
+                                        <th class="p-4">Tên hiển thị</th>
+                                        <th class="p-4">Email</th>
+                                        <th class="p-4">Vai trò</th>
+                                        <th class="p-4 text-right">Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-users-table" class="divide-y divide-slate-100 dark:divide-slate-700/50"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </main>
         </div>
 
-        <!-- 3. MODAL SOẠN THƯ -->
+        <!-- Compose Modal -->
         <div id="compose-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden p-4">
             <div class="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col">
                 <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
@@ -176,24 +200,20 @@
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Gửi tới</label>
                         <select id="compose-recipient" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none transition">
-                            <option value="public">🌐 Bảng tin chung (Tất cả mọi người đều thấy)</option>
+                            <option value="public">🌐 Bảng tin chung (Tất cả mọi người)</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Tiêu đề</label>
-                        <input type="text" id="compose-subject" required placeholder="Nhập tiêu đề thư..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none transition">
+                        <input type="text" id="compose-subject" required placeholder="Nhập tiêu đề..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none transition">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Nội dung</label>
-                        <textarea id="compose-body" rows="6" required placeholder="Nhập nội dung chia sẻ..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none transition"></textarea>
+                        <textarea id="compose-body" rows="6" required placeholder="Nhập nội dung tin nhắn..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none transition"></textarea>
                     </div>
                     <div class="flex items-center justify-end gap-3 pt-2">
-                        <button type="button" onclick="saveDraft()" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-semibold transition">
-                            Lưu Nháp
-                        </button>
-                        <button type="submit" class="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold text-sm rounded-xl shadow-lg shadow-primary-600/30 transition">
-                            Gửi Ngay
-                        </button>
+                        <button type="button" onclick="saveDraft()" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 text-sm font-semibold transition">Lưu Nháp</button>
+                        <button type="submit" class="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold text-sm rounded-xl shadow-lg shadow-primary-600/30 transition">Gửi Ngay</button>
                     </div>
                 </form>
             </div>
@@ -201,110 +221,86 @@
 
     </div>
 
-    <!-- Application Script -->
     <script>
-        // State Management
+        // SHA-256 Hashing Function
+        async function hashPassword(str) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(str);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
         let currentUser = JSON.parse(localStorage.getItem('cloudshare_user')) || null;
         let currentFolder = 'inbox';
         let currentSelectedMsgId = null;
         let searchQuery = '';
 
-        // Initial Mock Database
-        if (!localStorage.getItem('cloudshare_users')) {
-            localStorage.setItem('cloudshare_users', JSON.stringify([
-                { id: 'u1', name: 'Nguyễn Văn An', email: 'an@example.com', password: '123' },
-                { id: 'u2', name: 'Trần Thị Bình', email: 'binh@example.com', password: '123' }
-            ]));
+        // Initialize Users with Admin Account & SHA-256 Hashes
+        async function initDatabase() {
+            if (!localStorage.getItem('cloudshare_users_v2')) {
+                const defaultAdminPass = await hashPassword('admin123');
+                const defaultUserPass = await hashPassword('123');
+
+                const initialUsers = [
+                    { id: 'admin_1', name: 'Quản Trị Viên (Admin)', email: 'admin@gmail.com', passwordHash: defaultAdminPass, role: 'admin' },
+                    { id: 'u1', name: 'Nguyễn Văn An', email: 'an@example.com', passwordHash: defaultUserPass, role: 'user' },
+                    { id: 'u2', name: 'Trần Thị Bình', email: 'binh@example.com', passwordHash: defaultUserPass, role: 'user' }
+                ];
+                localStorage.setItem('cloudshare_users_v2', JSON.stringify(initialUsers));
+            }
+
+            if (!localStorage.getItem('cloudshare_messages')) {
+                localStorage.setItem('cloudshare_messages', JSON.stringify([
+                    {
+                        id: 'm1', senderId: 'u1', senderName: 'Nguyễn Văn An', senderEmail: 'an@example.com',
+                        recipientId: 'u2', recipientName: 'Trần Thị Bình', subject: 'Chào mừng bạn đến với hệ thống!',
+                        body: 'Xin chào Bình, đây là hệ thống nhắn tin bảo mật tích hợp quyền Admin.', timestamp: new Date().toISOString(), read: false, folder: 'inbox'
+                    }
+                ]));
+            }
         }
 
-        if (!localStorage.getItem('cloudshare_messages')) {
-            localStorage.setItem('cloudshare_messages', JSON.stringify([
-                {
-                    id: 'm1',
-                    senderId: 'u1',
-                    senderName: 'Nguyễn Văn An',
-                    senderEmail: 'an@example.com',
-                    recipientId: 'u2',
-                    recipientName: 'Trần Thị Bình',
-                    subject: 'Chào mừng bạn đến với hệ thống chia sẻ thông tin',
-                    body: 'Xin chào Bình,\n\nHệ thống này cho phép chúng ta gửi tin nhắn trực tiếp hoặc đăng thông tin lên bảng tin chung giống như email hoặc outlook.\n\nHãy thử gửi phản hồi lại cho mình nhé!',
-                    timestamp: new Date(Date.now() - 3600000).toISOString(),
-                    read: false,
-                    folder: 'inbox'
-                },
-                {
-                    id: 'm2',
-                    senderId: 'u1',
-                    senderName: 'Nguyễn Văn An',
-                    senderEmail: 'an@example.com',
-                    recipientId: 'public',
-                    recipientName: 'Bảng tin chung',
-                    subject: 'Thông báo họp nhóm tuần này',
-                    body: 'Chào mọi người, tuần này chúng ta sẽ họp vào lúc 9h sáng thứ Hai tại phòng họp chung để tổng kết tiến độ công việc.',
-                    timestamp: new Date(Date.now() - 7200000).toISOString(),
-                    read: true,
-                    folder: 'public'
-                }
-            ]));
-        }
-
-        // Initialize App
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initDatabase();
             if (currentUser) {
                 showMainApp();
             } else {
-                showAuthScreen('login');
+                showAuthScreen();
             }
         });
 
-        // Auth Switcher
+        // Auth Handler
         let isRegisterMode = false;
-        const authSwitchBtn = document.getElementById('auth-switch-btn');
-        authSwitchBtn.addEventListener('click', () => {
+        document.getElementById('auth-switch-btn').addEventListener('click', () => {
             isRegisterMode = !isRegisterMode;
-            const title = document.getElementById('auth-title');
-            const subBtn = document.getElementById('auth-submit-btn');
-            const nameGroup = document.getElementById('name-group');
-            const switchText = document.getElementById('auth-switch-text');
-
-            if (isRegisterMode) {
-                title.textContent = "Tạo tài khoản mới";
-                subBtn.textContent = "Đăng Ký";
-                nameGroup.classList.remove('hidden');
-                switchText.textContent = "Đã có tài khoản?";
-                authSwitchBtn.textContent = "Đăng nhập";
-            } else {
-                title.textContent = "Đăng nhập vào Hệ thống";
-                subBtn.textContent = "Đăng Nhập";
-                nameGroup.classList.add('hidden');
-                switchText.textContent = "Chưa có tài khoản?";
-                authSwitchBtn.textContent = "Đăng ký ngay";
-            }
+            document.getElementById('auth-title').textContent = isRegisterMode ? "Tạo tài khoản mới" : "Đăng nhập vào Hệ thống";
+            document.getElementById('auth-submit-btn').textContent = isRegisterMode ? "Đăng Ký" : "Đăng Nhập";
+            document.getElementById('name-group').classList.toggle('hidden', !isRegisterMode);
+            document.getElementById('auth-switch-text').textContent = isRegisterMode ? "Đã có tài khoản?" : "Chưa có tài khoản?";
+            document.getElementById('auth-switch-btn').textContent = isRegisterMode ? "Đăng nhập" : "Đăng ký ngay";
         });
 
-        // Auth Form Handler
-        document.getElementById('auth-form').addEventListener('submit', (e) => {
+        document.getElementById('auth-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
-            let users = JSON.parse(localStorage.getItem('cloudshare_users'));
+            const passwordHash = await hashPassword(password);
+            let users = JSON.parse(localStorage.getItem('cloudshare_users_v2'));
 
             if (isRegisterMode) {
                 const name = document.getElementById('auth-name').value.trim();
                 if (!name) return alert('Vui lòng nhập tên hiển thị!');
-                if (users.some(u => u.email === email)) {
-                    return alert('Email này đã được đăng ký!');
-                }
-                const newUser = { id: 'u_' + Date.now(), name, email, password };
+                if (users.some(u => u.email === email)) return alert('Email đã tồn tại!');
+                
+                const newUser = { id: 'u_' + Date.now(), name, email, passwordHash, role: 'user' };
                 users.push(newUser);
-                localStorage.setItem('cloudshare_users', JSON.stringify(users));
+                localStorage.setItem('cloudshare_users_v2', JSON.stringify(users));
                 currentUser = newUser;
                 alert('Đăng ký thành công!');
             } else {
-                const user = users.find(u => u.email === email && u.password === password);
-                if (!user) {
-                    return alert('Email hoặc mật khẩu không chính xác!');
-                }
+                const user = users.find(u => u.email === email && u.passwordHash === passwordHash);
+                if (!user) return alert('Sai email hoặc mật khẩu!');
                 currentUser = user;
             }
 
@@ -312,11 +308,9 @@
             showMainApp();
         });
 
-        // Logout
         function handleLogout() {
-            if (confirm('Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?')) {
+            if (confirm('Bạn muốn đăng xuất khỏi hệ thống?')) {
                 localStorage.removeItem('cloudshare_user');
-                sessionStorage.clear();
                 currentUser = null;
                 window.location.reload();
             }
@@ -334,14 +328,19 @@
             document.getElementById('user-display-email').textContent = currentUser.email;
             document.getElementById('user-avatar').textContent = currentUser.name.charAt(0).toUpperCase();
 
+            if (currentUser.role === 'admin') {
+                document.getElementById('admin-badge').classList.remove('hidden');
+                document.getElementById('nav-admin').classList.remove('hidden');
+            }
+
             loadRecipientDropdown();
             renderApp();
         }
 
         function loadRecipientDropdown() {
             const select = document.getElementById('compose-recipient');
-            let users = JSON.parse(localStorage.getItem('cloudshare_users'));
-            let html = `<option value="public">🌐 Bảng tin chung (Tất cả mọi người đều thấy)</option>`;
+            let users = JSON.parse(localStorage.getItem('cloudshare_users_v2'));
+            let html = `<option value="public">🌐 Bảng tin chung (Tất cả mọi người)</option>`;
             users.forEach(u => {
                 if (u.email !== currentUser.email) {
                     html += `<option value="${u.id}">${u.name} (${u.email})</option>`;
@@ -353,20 +352,55 @@
         function switchFolder(folder) {
             currentFolder = folder;
             currentSelectedMsgId = null;
-            
-            ['inbox', 'public', 'sent', 'drafts', 'trash'].forEach(f => {
-                const btn = document.getElementById(`nav-${f}`);
-                if (f === folder) {
-                    btn.className = "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 transition";
-                } else {
-                    btn.className = "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition";
-                }
-            });
+
+            if (folder === 'admin') {
+                document.getElementById('messaging-view').classList.add('hidden');
+                document.getElementById('admin-view').classList.remove('hidden');
+                document.getElementById('current-folder-title').textContent = "Quản Trị Hệ Thống";
+                renderAdminUsers();
+                return;
+            } else {
+                document.getElementById('messaging-view').classList.remove('hidden');
+                document.getElementById('admin-view').classList.add('hidden');
+            }
 
             const titles = { inbox: 'Hộp thư đến', public: 'Bảng tin chung', sent: 'Thư đã gửi', drafts: 'Thư nháp', trash: 'Thùng rác' };
             document.getElementById('current-folder-title').textContent = titles[folder];
 
             renderApp();
+        }
+
+        function renderAdminUsers() {
+            let users = JSON.parse(localStorage.getItem('cloudshare_users_v2'));
+            let html = '';
+            users.forEach(u => {
+                html += `
+                    <tr>
+                        <td class="p-4 font-semibold">${u.name}</td>
+                        <td class="p-4 text-slate-500 dark:text-slate-400">${u.email}</td>
+                        <td class="p-4"><span class="px-2 py-0.5 rounded text-xs font-bold ${u.role === 'admin' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700'}">${u.role.toUpperCase()}</span></td>
+                        <td class="p-4 text-right">
+                            ${u.role !== 'admin' ? `<button onclick="deleteUserByAdmin('${u.id}')" class="px-3 py-1 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-semibold hover:bg-red-100">Xóa tài khoản</button>` : `<span class="text-xs text-slate-400">Không thể xóa</span>`}
+                        </td>
+                    </tr>
+                `;
+            });
+            document.getElementById('admin-users-table').innerHTML = html;
+        }
+
+        function deleteUserByAdmin(userId) {
+            if (confirm('Bạn có chắc chắn muốn xóa tài khoản này và toàn bộ tin nhắn liên quan?')) {
+                let users = JSON.parse(localStorage.getItem('cloudshare_users_v2'));
+                users = users.filter(u => u.id !== userId);
+                localStorage.setItem('cloudshare_users_v2', JSON.stringify(users));
+
+                let messages = JSON.parse(localStorage.getItem('cloudshare_messages'));
+                messages = messages.filter(m => m.senderId !== userId && m.recipientId !== userId);
+                localStorage.setItem('cloudshare_messages', JSON.stringify(messages));
+
+                renderAdminUsers();
+                loadRecipientDropdown();
+            }
         }
 
         function renderApp() {
@@ -391,50 +425,39 @@
 
             if (searchQuery) {
                 const q = searchQuery.toLowerCase();
-                filtered = filtered.filter(m => m.subject.toLowerCase().includes(q) || m.body.toLowerCase().includes(q) || m.senderName.toLowerCase().includes(q));
+                filtered = filtered.filter(m => m.subject.toLowerCase().includes(q) || m.body.toLowerCase().includes(q));
             }
 
             const listEl = document.getElementById('message-list');
             if (filtered.length === 0) {
-                listEl.innerHTML = `<div class="p-8 text-center text-slate-400 text-sm">Không có tin nhắn nào trong thư mục này</div>`;
-                document.getElementById('message-detail').innerHTML = `
-                    <div class="m-auto text-center text-slate-400">
-                        <i class="fa-regular fa-envelope-open text-5xl mb-3"></i>
-                        <p class="text-sm font-medium">Không có tin nhắn hiển thị</p>
-                    </div>`;
+                listEl.innerHTML = `<div class="p-8 text-center text-slate-400 text-sm">Trống</div>`;
+                document.getElementById('message-detail').innerHTML = `<div class="m-auto text-center text-slate-400"><p class="text-sm">Không có tin nhắn</p></div>`;
                 return;
             }
 
             let html = '';
             filtered.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(m => {
-                const isUnread = !m.read && m.recipientId === currentUser.id;
                 const activeClass = currentSelectedMsgId === m.id ? 'bg-primary-50/60 dark:bg-primary-900/20' : 'hover:bg-slate-50 dark:hover:bg-slate-700/30';
-                
                 html += `
                     <div onclick="selectMessage('${m.id}')" class="p-4 cursor-pointer transition ${activeClass}">
                         <div class="flex items-center justify-between mb-1">
-                            <span class="font-semibold text-sm truncate ${isUnread ? 'text-primary-600 dark:text-primary-400 font-bold' : ''}">
-                                ${currentFolder === 'sent' ? 'Đến: ' + m.recipientName : m.senderName}
-                            </span>
+                            <span class="font-semibold text-sm truncate">${currentFolder === 'sent' ? 'Đến: ' + m.recipientName : m.senderName}</span>
                             <span class="text-xs text-slate-400">${new Date(m.timestamp).toLocaleDateString()}</span>
                         </div>
-                        <h4 class="text-sm font-medium truncate ${isUnread ? 'font-bold' : ''}">${m.subject}</h4>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-1">${m.body}</p>
+                        <h4 class="text-sm font-medium truncate">${m.subject}</h4>
+                        <p class="text-xs text-slate-500 truncate mt-1">${m.body}</p>
                     </div>
                 `;
             });
             listEl.innerHTML = html;
 
-            if (!currentSelectedMsgId && filtered.length > 0) {
-                selectMessage(filtered[0].id);
-            }
+            if (!currentSelectedMsgId && filtered.length > 0) selectMessage(filtered[0].id);
         }
 
         function selectMessage(id) {
             currentSelectedMsgId = id;
             let messages = JSON.parse(localStorage.getItem('cloudshare_messages'));
             const msg = messages.find(m => m.id === id);
-
             if (!msg) return;
 
             if (!msg.read && msg.recipientId === currentUser.id) {
@@ -444,45 +467,28 @@
 
             renderApp();
 
-            const detailEl = document.getElementById('message-detail');
-            detailEl.innerHTML = `
+            document.getElementById('message-detail').innerHTML = `
                 <div class="p-8 max-w-3xl w-full mx-auto">
                     <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
                         <div class="flex items-start justify-between border-b border-slate-100 dark:border-slate-700 pb-4 mb-6">
                             <div>
                                 <h2 class="text-xl font-bold mb-2">${msg.subject}</h2>
-                                <p class="text-sm text-slate-500 dark:text-slate-400">Từ: <span class="font-semibold text-slate-700 dark:text-slate-200">${msg.senderName}</span> (${msg.senderEmail})</p>
-                                <p class="text-sm text-slate-500 dark:text-slate-400">Đến: <span class="font-semibold text-slate-700 dark:text-slate-200">${msg.recipientName}</span></p>
+                                <p class="text-sm text-slate-500">Từ: <span class="font-semibold">${msg.senderName}</span> (${msg.senderEmail})</p>
+                                <p class="text-sm text-slate-500">Đến: <span class="font-semibold">${msg.recipientName}</span></p>
                             </div>
-                            <div class="text-right">
-                                <span class="text-xs text-slate-400">${new Date(msg.timestamp).toLocaleString()}</span>
-                            </div>
+                            <span class="text-xs text-slate-400">${new Date(msg.timestamp).toLocaleString()}</span>
                         </div>
-                        <div class="prose dark:prose-invert max-w-none text-sm leading-relaxed whitespace-pre-wrap text-slate-700 dark:text-slate-300 mb-8">
-                            ${msg.body}
-                        </div>
-                        <div class="flex items-center gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
-                            ${currentFolder !== 'trash' ? `
-                                <button onclick="moveToTrash('${msg.id}')" class="px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 text-red-600 rounded-xl text-sm font-semibold transition flex items-center gap-2">
-                                    <i class="fa-solid fa-trash"></i> Xóa
-                                </button>
-                            ` : `
-                                <button onclick="deleteForever('${msg.id}')" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-semibold transition flex items-center gap-2">
-                                    <i class="fa-solid fa-xmark"></i> Xóa vĩnh viễn
-                                </button>
-                            `}
+                        <div class="prose max-w-none text-sm leading-relaxed whitespace-pre-wrap mb-8 text-slate-700 dark:text-slate-300">${msg.body}</div>
+                        <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+                            <button onclick="moveToTrash('${msg.id}')" class="px-4 py-2 bg-red-50 text-red-600 rounded-xl text-sm font-semibold hover:bg-red-100">Xóa tin nhắn</button>
                         </div>
                     </div>
                 </div>
             `;
         }
 
-        function openComposeModal() {
-            document.getElementById('compose-modal').classList.remove('hidden');
-        }
-        function closeComposeModal() {
-            document.getElementById('compose-modal').classList.add('hidden');
-        }
+        function openComposeModal() { document.getElementById('compose-modal').classList.remove('hidden'); }
+        function closeComposeModal() { document.getElementById('compose-modal').classList.add('hidden'); }
 
         function sendEmail(e) {
             e.preventDefault();
@@ -490,7 +496,7 @@
             const subject = document.getElementById('compose-subject').value;
             const body = document.getElementById('compose-body').value;
 
-            let users = JSON.parse(localStorage.getItem('cloudshare_users'));
+            let users = JSON.parse(localStorage.getItem('cloudshare_users_v2'));
             let recipientName = 'Bảng tin chung';
             let folder = 'inbox';
 
@@ -502,17 +508,8 @@
             }
 
             const newMsg = {
-                id: 'm_' + Date.now(),
-                senderId: currentUser.id,
-                senderName: currentUser.name,
-                senderEmail: currentUser.email,
-                recipientId: recipientId,
-                recipientName: recipientName,
-                subject,
-                body,
-                timestamp: new Date().toISOString(),
-                read: false,
-                folder: folder
+                id: 'm_' + Date.now(), senderId: currentUser.id, senderName: currentUser.name, senderEmail: currentUser.email,
+                recipientId, recipientName, subject, body, timestamp: new Date().toISOString(), read: false, folder
             };
 
             let messages = JSON.parse(localStorage.getItem('cloudshare_messages'));
@@ -530,21 +527,12 @@
             const subject = document.getElementById('compose-subject').value;
             const body = document.getElementById('compose-body').value;
 
-            let users = JSON.parse(localStorage.getItem('cloudshare_users'));
+            let users = JSON.parse(localStorage.getItem('cloudshare_users_v2'));
             let recipientName = recipientId === 'public' ? 'Bảng tin chung' : (users.find(u => u.id === recipientId)?.name || 'Nháp');
 
             const newMsg = {
-                id: 'm_' + Date.now(),
-                senderId: currentUser.id,
-                senderName: currentUser.name,
-                senderEmail: currentUser.email,
-                recipientId: recipientId,
-                recipientName: recipientName,
-                subject: subject || '(Không có tiêu đề)',
-                body,
-                timestamp: new Date().toISOString(),
-                read: true,
-                folder: 'drafts'
+                id: 'm_' + Date.now(), senderId: currentUser.id, senderName: currentUser.name, senderEmail: currentUser.email,
+                recipientId, recipientName, subject: subject || '(Không tiêu đề)', body, timestamp: new Date().toISOString(), read: true, folder: 'drafts'
             };
 
             let messages = JSON.parse(localStorage.getItem('cloudshare_messages'));
@@ -568,22 +556,8 @@
             }
         }
 
-        function deleteForever(id) {
-            let messages = JSON.parse(localStorage.getItem('cloudshare_messages'));
-            messages = messages.filter(m => m.id !== id);
-            localStorage.setItem('cloudshare_messages', JSON.stringify(messages));
-            currentSelectedMsgId = null;
-            renderApp();
-        }
-
-        function handleSearch(val) {
-            searchQuery = val;
-            renderApp();
-        }
-
-        function toggleDarkMode() {
-            document.documentElement.classList.toggle('dark');
-        }
+        function handleSearch(val) { searchQuery = val; renderApp(); }
+        function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
     </script>
 </body>
 </html>
