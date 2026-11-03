@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniConnect - Hệ Thống Chia Sẻ Thông Tin & Email</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(156, 163, 175, 0.4);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(156, 163, 175, 0.7);
+    }
+  </style>
+</head>
+<body class="h-full bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
+
+  <!-- Thanh điều hướng trên cùng (Header) -->
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-3 flex items-center justify-between shadow-sm z-20 shrink-0">
+    <!-- Logo & tiêu đề -->
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
+        <i class="fa-solid fa-paper-plane"></i>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold leading-none tracking-tight text-slate-900 dark:text-white">OmniConnect</h1>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Mô Phỏng Chia Sẻ Thông Tin</p>
+      </div>
+    </div>
+
+    <!-- Bộ chuyển đổi tài khoản & thao tác -->
+    <div class="flex items-center space-x-3">
+      <div class="relative">
+        <div class="flex items-center bg-slate-100 dark:bg-slate-700 rounded-full p-1 pl-3 pr-2 border border-slate-200 dark:border-slate-600 shadow-inner">
+          <span class="text-xs font-medium mr-2 text-slate-500 dark:text-slate-400 hidden sm:inline">Đang thao tác:</span>
+          <select id="userSelector" onchange="switchUser(this.value)" class="bg-transparent font-semibold text-sm focus:outline-none cursor-pointer text-blue-600 dark:text-blue-400 pr-1">
+            <!-- Render động danh sách tài khoản -->
+          </select>
+          <div id="currentUserAvatar" class="w-7 h-7 rounded-full bg-blue-500 text-white font-bold text-xs flex items-center justify-center ml-1 shadow">
+            A
+          </div>
+        </div>
+      </div>
+
+      <!-- Thêm tài khoản mới -->
+      <button onclick="openAddUserModal()" title="Thêm người dùng mới" class="p-2 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+        <i class="fa-solid fa-user-plus"></i>
+      </button>
+
+      <!-- Đặt lại dữ liệu -->
+      <button onclick="resetSystemData()" title="Đặt lại dữ liệu ban đầu" class="p-2 text-slate-400 hover:text-red-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+        <i class="fa-solid fa-rotate-right"></i>
+      </button>
+
+      <!-- Đổi giao diện Sáng/Tối -->
+      <button onclick="toggleDarkMode()" title="Đổi giao diện Sáng/Tối" class="p-2 text-slate-500 dark:text-slate-400 hover:text-amber-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+        <i class="fa-solid fa-moon dark:hidden"></i>
+        <i class="fa-solid fa-sun hidden dark:block text-amber-400"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Không gian làm việc chính -->
+  <div class="flex-1 flex overflow-hidden">
+
+    <!-- Thanh điều hướng bên trái (Sidebar) -->
+    <aside class="w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col justify-between shrink-0 hidden md:flex">
+      <div class="p-4 space-y-4">
+        <!-- Soạn thư mới -->
+        <button onclick="openComposeModal()" class="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/20 flex items-center justify-center space-x-2 transition transform active:scale-95">
+          <i class="fa-solid fa-pen-to-square"></i>
+          <span>Soạn Thư Mới</span>
+        </button>
+
+        <!-- Thư mục -->
+        <nav class="space-y-1">
+          <button id="nav-inbox" onclick="switchFolder('inbox')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg font-medium text-sm transition bg-blue-50 dark:bg-slate-700 text-blue-600 dark:text-blue-400">
+            <div class="flex items-center space-x-3">
+              <i class="fa-solid fa-inbox text-base w-5 text-center"></i>
+              <span>Hộp thư đến</span>
+            </div>
+            <span id="badge-inbox" class="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full hidden">0</span>
+          </button>
+
+          <button id="nav-broadcast" onclick="switchFolder('broadcast')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg font-medium text-sm transition text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            <div class="flex items-center space-x-3">
+              <i class="fa-solid fa-bullhorn text-base w-5 text-center text-amber-500"></i>
+              <span>Bảng tin chung</span>
+            </div>
+            <span id="badge-broadcast" class="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full hidden">0</span>
+          </button>
+
+          <button id="nav-sent" onclick="switchFolder('sent')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg font-medium text-sm transition text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            <div class="flex items-center space-x-3">
+              <i class="fa-solid fa-paper-plane text-base w-5 text-center"></i>
+              <span>Thư đã gửi</span>
+            </div>
+            <span id="badge-sent" class="text-xs text-slate-400 font-normal">0</span>
+          </button>
+
+          <button id="nav-drafts" onclick="switchFolder('drafts')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg font-medium text-sm transition text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            <div class="flex items-center space-x-3">
+              <i class="fa-solid fa-file-lines text-base w-5 text-center text-slate-400"></i>
+              <span>Thư nháp</span>
+            </div>
+            <span id="badge-drafts" class="text-xs text-slate-400 font-normal">0</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Trạng thái lưu trữ -->
+      <div class="p-4 border-t border-slate-200 dark:border-slate-700 text-xs text-slate-400 space-y-2">
+        <div class="flex items-center space-x-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Dữ liệu lưu LocalStorage</span>
+        </div>
+        <p class="leading-relaxed">Thay đổi tài khoản thao tác ở thanh Header để mô phỏng tương tác giữa người gửi & người nhận.</p>
+      </div>
+    </aside>
+
+    <!-- Danh sách thư (Cột giữa) -->
+    <section class="w-full md:w-80 lg:w-96 bg-slate-50 dark:bg-slate-800/50 border-r border-slate-200 dark:border-slate-700 flex flex-col shrink-0">
+      <div class="p-3 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 space-y-2">
+        <div class="relative">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i>
+          <input type="text" id="searchInput" oninput="renderMessageList()" placeholder="Tìm kiếm tin nhắn..." class="w-full pl-9 pr-3 py-2 bg-slate-100 dark:bg-slate-700 border-0 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white">
+        </div>
+        
+        <!-- Điều hướng mobile -->
+        <div class="flex md:hidden space-x-1 pt-1 overflow-x-auto">
+          <button onclick="switchFolder('inbox')" class="flex-1 py-1 text-xs font-semibold rounded bg-blue-100 dark:bg-slate-700 text-blue-600 dark:text-blue-400 whitespace-nowrap px-2">Đến</button>
+          <button onclick="switchFolder('broadcast')" class="flex-1 py-1 text-xs font-semibold rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 whitespace-nowrap px-2">Chung</button>
+          <button onclick="switchFolder('sent')" class="flex-1 py-1 text-xs font-semibold rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 whitespace-nowrap px-2">Đã gửi</button>
+          <button onclick="switchFolder('drafts')" class="flex-1 py-1 text-xs font-semibold rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 whitespace-nowrap px-2">Nháp</button>
+        </div>
+      </div>
+
+      <div class="px-4 py-2 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+        <span id="folderTitleDisplay">HỘP THƯ ĐẾN</span>
+        <span id="messageCountDisplay">0 thư</span>
+      </div>
+
+      <div id="messageList" class="flex-1 overflow-y-auto divide-y divide-slate-200 dark:divide-slate-700">
+        <!-- Render danh sách tin bằng JS -->
+      </div>
+    </section>
+
+    <!-- Xem nội dung tin nhắn (Cột phải) -->
+    <main id="detailPane" class="flex-1 bg-white dark:bg-slate-900 flex flex-col overflow-hidden relative">
+      <div id="emptyDetailState" class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+        <div class="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-300 dark:text-slate-600 text-3xl mb-4">
+          <i class="fa-solid fa-envelope-open"></i>
+        </div>
+        <h3 class="text-base font-semibold text-slate-700 dark:text-slate-300">Chưa chọn thư nào</h3>
+        <p class="text-sm text-slate-400 mt-1 max-w-sm">Chọn một thư từ danh sách bên trái để xem nội dung chi tiết.</p>
+      </div>
+
+      <div id="activeDetailState" class="flex-1 flex flex-col h-full hidden overflow-y-auto">
+        <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 sticky top-0 z-10">
+          <div class="flex items-start justify-between">
+            <h2 id="detailSubject" class="text-xl font-bold text-slate-900 dark:text-white leading-snug">
+              Tiêu Đề Thư
+            </h2>
+            <div class="flex items-center space-x-2">
+              <span id="detailBadge" class="text-xs px-2.5 py-1 rounded-full font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                Thư Riêng
+              </span>
+              <button id="editDraftBtn" onclick="editCurrentDraft()" title="Chỉnh sửa thư nháp" class="p-2 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition hidden">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button onclick="deleteCurrentMessage()" title="Xóa thư này" class="p-2 text-slate-400 hover:text-red-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div id="detailSenderAvatar" class="w-10 h-10 rounded-full bg-indigo-500 text-white font-bold flex items-center justify-center text-sm shadow">
+                A
+              </div>
+              <div>
+                <div class="text-sm font-semibold text-slate-900 dark:text-slate-100" id="detailSenderName">
+                  Tên Người Gửi
+                </div>
+                <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center space-x-1">
+                  <span>Gửi tới:</span>
+                  <span id="detailRecipientName" class="font-medium text-slate-700 dark:text-slate-300">Tên Người Nhận</span>
+                </div>
+              </div>
+            </div>
+            <div id="detailTimestamp" class="text-xs text-slate-400">
+              Thời gian
+            </div>
+          </div>
+        </div>
+
+        <div class="p-6 flex-1 text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-wrap text-sm md:text-base font-normal" id="detailBody">
+          Nội dung thư...
+        </div>
+
+        <!-- Trả lời nhanh -->
+        <div id="quickReplyBox" class="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40">
+          <div class="flex items-center space-x-2">
+            <input type="text" id="quickReplyInput" placeholder="Viết phản hồi nhanh..." class="flex-1 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button onclick="sendQuickReply()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold flex items-center space-x-1.5 shadow transition">
+              <span>Trả lời</span>
+              <i class="fa-solid fa-paper-plane text-xs"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- POPUP SOẠN THƯ -->
+  <div id="composeModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden border border-slate-200 dark:border-slate-700 flex flex-col">
+      <div class="px-6 py-4 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+        <h3 class="font-bold text-slate-800 dark:text-white flex items-center space-x-2">
+          <i class="fa-solid fa-pen-to-square text-blue-600"></i>
+          <span>Soạn Thư Mới</span>
+        </h3>
+        <button onclick="closeComposeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="composeForm" onsubmit="handleSendMessage(event)" class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Người Nhận</label>
+          <select id="composeRecipient" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white">
+            <option value="ALL">📢 BẢNG TIN CHUNG (Tất cả mọi người cùng thấy)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Tiêu Đề</label>
+          <input type="text" id="composeSubject" required placeholder="Nhập tiêu đề thư..." class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Nội Dung Thư</label>
+          <textarea id="composeBody" rows="5" required placeholder="Nhập nội dung thư tại đây..." class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white resize-none"></textarea>
+        </div>
+
+        <div class="flex items-center justify-between pt-2">
+          <button type="button" onclick="saveDraft()" class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition flex items-center space-x-1">
+            <i class="fa-solid fa-floppy-disk text-slate-400"></i>
+            <span>Lưu Nháp</span>
+          </button>
+
+          <div class="flex items-center space-x-3">
+            <button type="button" onclick="closeComposeModal()" class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">
+              Hủy
+            </button>
+            <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-lg shadow-md transition flex items-center space-x-2">
+              <span>Gửi Thư</span>
+              <i class="fa-solid fa-paper-plane text-xs"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- POPUP THÊM TÀI KHOẢN -->
+  <div id="addUserModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-200 dark:border-slate-700 p-6 space-y-4">
+      <h3 class="font-bold text-slate-800 dark:text-white text-base">Thêm Người Dùng Mới</h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400">Tạo thêm tài khoản để thử nghiệm gửi/nhận giữa nhiều người.</p>
+      
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Họ và Tên</label>
+        <input type="text" id="newUserName" placeholder="Ví dụ: Nguyễn Văn D" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white">
+      </div>
+
+      <div class="flex items-center justify-end space-x-2 pt-2">
+        <button onclick="closeAddUserModal()" class="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">Hủy</button>
+        <button onclick="handleAddUser()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-lg shadow">Tạo Tài Khoản</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- THÔNG BÁO TOAST -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 transform translate-y-20 opacity-0 transition-all duration-300 z-50 text-sm font-medium">
+    <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 dark:text-emerald-600"></i>
+    <span id="toastMessage">Nội dung thông báo</span>
+  </div>
+
+  <!-- LOGIC JAVASCRIPT -->
+  <script>
+    const STORAGE_KEY_USERS = 'omni_users_vi_v2';
+    const STORAGE_KEY_MESSAGES = 'omni_messages_vi_v2';
+
+    const DEFAULT_USERS = [
+      { id: 'user_a', name: 'Người dùng A (An)', avatar: 'A', color: 'bg-indigo-500' },
+      { id: 'user_b', name: 'Người dùng B (Bình)', avatar: 'B', color: 'bg-emerald-500' },
+      { id: 'user_c', name: 'Người dùng C (Cường)', avatar: 'C', color: 'bg-amber-500' }
+    ];
+
+    const DEFAULT_MESSAGES = [
+      {
+        id: 'msg_1',
+        senderId: 'user_b',
+        recipientId: 'user_a',
+        subject: 'Chào mừng bạn đến với OmniConnect!',
+        body: 'Chào An,\n\nĐây là hệ thống mô phỏng truyền tin nhắn và email nội bộ. Bạn có thể đổi tài khoản đang thao tác ở góc trên (ví dụ chuyển sang Bình hoặc Cường) để kiểm tra Hộp thư đến và Thư đã gửi của từng người nhé!\n\nThân ái,\nBình',
+        timestamp: new Date(Date.now() - 3600000 * 2).toISOString(),
+        readBy: ['user_b'],
+        isDraft: false
+      },
+      {
+        id: 'msg_2',
+        senderId: 'user_c',
+        recipientId: 'ALL',
+        subject: '📢 Thông báo: Họp kế hoạch quý tới',
+        body: 'Kính gửi toàn thể thành viên,\n\nLịch họp tổng kết và lên kế hoạch quý mới sẽ diễn ra vào lúc 9:00 sáng Thứ 5 tuần này. Do đây là Bảng tin chung nên tất cả mọi người khi đăng nhập đều sẽ nhìn thấy tin nhắn này.\n\nTrân trọng!',
+        timestamp: new Date(Date.now() - 3600000 * 5).toISOString(),
+        readBy: ['user_c'],
+        isDraft: false
+      }
+    ];
+
+    let users = [];
+    let messages = [];
+    let activeUserId = '';
+    let currentFolder = 'inbox';
+    let selectedMessageId = null;
+
+    window.onload = function() {
+      loadState();
+      renderUserSelector();
+      renderComposeRecipients();
+      updateBadges();
+      renderMessageList();
+    };
+
+    function loadState() {
+      const storedUsers = localStorage.getItem(STORAGE_KEY_USERS);
+      const storedMessages = localStorage.getItem(STORAGE_KEY_MESSAGES);
+
+      users = storedUsers ? JSON.parse(storedUsers) : [...DEFAULT_USERS];
+      messages = storedMessages ? JSON.parse(storedMessages) : [...DEFAULT_MESSAGES];
+      
+      activeUserId = users[0].id;
+      saveState();
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+      localStorage.setItem(STORAGE_KEY_MESSAGES, JSON.stringify(messages));
+    }
+
+    function resetSystemData() {
+      if(confirm("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu và khôi phục cài đặt mặc định?")) {
+        localStorage.removeItem(STORAGE_KEY_USERS);
+        localStorage.removeItem(STORAGE_KEY_MESSAGES);
+        loadState();
+        renderUserSelector();
+        renderComposeRecipients();
+        switchFolder('inbox');
+        showToast('Đã đặt lại dữ liệu ban đầu!');
+      }
+    }
+
+    function renderUserSelector() {
+      const selector = document.getElementById('userSelector');
+      selector.innerHTML = users.map(u => 
+        `<option value="${u.id}" ${u.id === activeUserId ? 'selected' : ''}>${u.name}</option>`
+      ).join('');
+
+      updateActiveUserUI();
+    }
+
+    function updateActiveUserUI() {
+      const activeUser = users.find(u => u.id === activeUserId);
+      if(!activeUser) return;
+
+      const avatarEl = document.getElementById('currentUserAvatar');
+      avatarEl.textContent = activeUser.avatar;
+      avatarEl.className = `w-7 h-7 rounded-full text-white font-bold text-xs flex items-center justify-center ml-1 shadow ${activeUser.color}`;
+    }
+
+    function switchUser(userId) {
+      activeUserId = userId;
+      selectedMessageId = null;
+      updateActiveUserUI();
+      renderComposeRecipients();
+      updateBadges();
+      renderMessageList();
+      clearDetailPane();
+      showToast(`Đã chuyển sang tài khoản: ${getUserName(userId)}`);
+    }
+
+    function getUserName(userId) {
+      if(userId === 'ALL') return 'Tất cả mọi người (Bảng tin chung)';
+      const u = users.find(x => x.id === userId);
+      return u ? u.name : 'Người dùng không xác định';
+    }
+
+    function getUser(userId) {
+      return users.find(x => x.id === userId) || { avatar: '?', color: 'bg-slate-400', name: 'Không xác định' };
+    }
+
+    function switchFolder(folder) {
+      currentFolder = folder;
+      selectedMessageId = null;
+
+      const titles = {
+        inbox: 'HỘP THƯ ĐẾN',
+        broadcast: 'BẢNG TIN CHUNG',
+        sent: 'THƯ ĐÃ GỬI',
+        drafts: 'THƯ NHÁP'
+      };
+
+      ['inbox', 'broadcast', 'sent', 'drafts'].forEach(f => {
+        const btn = document.getElementById(`nav-${f}`);
+        if(btn) {
+          if(f === folder) {
+            btn.className = "w-full flex items-center justify-between px-3 py-2.5 rounded-lg font-medium text-sm transition bg-blue-50 dark:bg-slate-700 text-blue-600 dark:text-blue-400";
+          } else {
+            btn.className = "w-full flex items-center justify-between px-3 py-2.5 rounded-lg font-medium text-sm transition text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700";
+          }
+        }
+      });
+
+      document.getElementById('folderTitleDisplay').textContent = titles[folder] || 'DANH SÁCH';
+      clearDetailPane();
+      renderMessageList();
+    }
+
+    function getFilteredMessages() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      
+      return messages.filter(m => {
+        let inFolder = false;
+        
+        if(currentFolder === 'inbox') {
+          inFolder = (m.recipientId === activeUserId) && !m.isDraft;
+        } else if(currentFolder === 'broadcast') {
+          inFolder = (m.recipientId === 'ALL') && !m.isDraft;
+        } else if(currentFolder === 'sent') {
+          inFolder = (m.senderId === activeUserId) && !m.isDraft;
+        } else if(currentFolder === 'drafts') {
+          inFolder = (m.senderId === activeUserId) && m.isDraft;
+        }
+
+        const matchesSearch = m.subject.toLowerCase().includes(search) || 
+                              m.body.toLowerCase().includes(search) ||
+                              getUserName(m.senderId).toLowerCase().includes(search);
+
+        return inFolder && matchesSearch;
+      }).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    }
+
+    function renderMessageList() {
+      const listEl = document.getElementById('messageList');
+      const filtered = getFilteredMessages();
+
+      document.getElementById('messageCountDisplay').textContent = `${filtered.length} thư`;
+
+      if(filtered.length === 0) {
+        listEl.innerHTML = `
+          <div class="p-8 text-center text-slate-400 dark:text-slate-500 text-sm">
+            <i class="fa-solid fa-inbox text-2xl mb-2 opacity-40"></i>
+            <p>Không có thư nào trong mục này</p>
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(m => {
+        const isRead = m.readBy.includes(activeUserId) || m.isDraft;
+        const isSelected = m.id === selectedMessageId;
+        const sender = getUser(m.senderId);
+        const formattedDate = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        return `
+          <div onclick="selectMessage('${m.id}')" class="p-4 cursor-pointer transition flex items-start space-x-3 border-l-4 ${
+            isSelected 
+              ? 'bg-blue-50/80 dark:bg-slate-700/80 border-blue-600' 
+              : isRead 
+                ? 'bg-white dark:bg-slate-800 border-transparent hover:bg-slate-100/50 dark:hover:bg-slate-700/40' 
+                : 'bg-white dark:bg-slate-800 border-blue-500 font-semibold'
+          }">
+            <div class="w-9 h-9 rounded-full ${sender.color} text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+              ${sender.avatar}
+            </div>
+
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">
+                  ${m.isDraft ? '[Bản nháp]' : (m.senderId === activeUserId ? 'Tới: ' + getUserName(m.recipientId) : sender.name)}
+                </span>
+                <span class="text-[10px] text-slate-400 font-normal shrink-0 ml-1">${formattedDate}</span>
+              </div>
+              <h4 class="text-xs font-medium text-slate-800 dark:text-slate-200 truncate ${!isRead ? 'font-bold' : ''}">
+                ${m.recipientId === 'ALL' ? '📢 ' : ''}${escapeHtml(m.subject || '(Không có tiêu đề)')}
+              </h4>
+              <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                ${escapeHtml(m.body || '(Nội dung trống)')}
+              </p>
+            </div>
+
+            ${!isRead ? `<span class="w-2 h-2 rounded-full bg-blue-600 mt-2 shrink-0"></span>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectMessage(id) {
+      selectedMessageId = id;
+      const msg = messages.find(m => m.id === id);
+      if(!msg) return;
+
+      if(!msg.readBy.includes(activeUserId) && !msg.isDraft) {
+        msg.readBy.push(activeUserId);
+        saveState();
+        updateBadges();
+      }
+
+      renderMessageList();
+
+      document.getElementById('emptyDetailState').classList.add('hidden');
+      document.getElementById('activeDetailState').classList.remove('hidden');
+
+      const sender = getUser(msg.senderId);
+      document.getElementById('detailSubject').textContent = msg.subject || '(Không có tiêu đề)';
+      document.getElementById('detailSenderName').textContent = sender.name;
+      document.getElementById('detailRecipientName').textContent = getUserName(msg.recipientId);
+      document.getElementById('detailTimestamp').textContent = new Date(msg.timestamp).toLocaleString('vi-VN');
+      document.getElementById('detailBody').textContent = msg.body;
+      
+      const avatarEl = document.getElementById('detailSenderAvatar');
+      avatarEl.textContent = sender.avatar;
+      avatarEl.className = `w-10 h-10 rounded-full ${sender.color} text-white font-bold flex items-center justify-center text-sm shadow`;
+
+      const badgeEl = document.getElementById('detailBadge');
+      const editBtn = document.getElementById('editDraftBtn');
+      const replyBox = document.getElementById('quickReplyBox');
+
+      if(msg.isDraft) {
+        badgeEl.textContent = '📝 Thư Nháp';
+        badgeEl.className = 'text-xs px-2.5 py-1 rounded-full font-medium bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
+        editBtn.classList.remove('hidden');
+        replyBox.classList.add('hidden');
+      } else {
+        editBtn.classList.add('hidden');
+        replyBox.classList.remove('hidden');
+        if(msg.recipientId === 'ALL') {
+          badgeEl.textContent = '📢 Bảng Tin Chung';
+          badgeEl.className = 'text-xs px-2.5 py-1 rounded-full font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300';
+        } else {
+          badgeEl.textContent = '🔒 Thư Riêng';
+          badgeEl.className = 'text-xs px-2.5 py-1 rounded-full font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300';
+        }
+      }
+    }
+
+    function clearDetailPane() {
+      selectedMessageId = null;
+      document.getElementById('emptyDetailState').classList.remove('hidden');
+      document.getElementById('activeDetailState').classList.add('hidden');
+    }
+
+    function updateBadges() {
+      const unreadInbox = messages.filter(m => m.recipientId === activeUserId && !m.readBy.includes(activeUserId) && !m.isDraft).length;
+      const inboxBadge = document.getElementById('badge-inbox');
+      if(unreadInbox > 0) {
+        inboxBadge.textContent = unreadInbox;
+        inboxBadge.classList.remove('hidden');
+      } else {
+        inboxBadge.classList.add('hidden');
+      }
+
+      const unreadBroadcast = messages.filter(m => m.recipientId === 'ALL' && !m.readBy.includes(activeUserId) && !m.isDraft).length;
+      const bBadge = document.getElementById('badge-broadcast');
+      if(unreadBroadcast > 0) {
+        bBadge.textContent = unreadBroadcast;
+        bBadge.classList.remove('hidden');
+      } else {
+        bBadge.classList.add('hidden');
+      }
+
+      const sentCount = messages.filter(m => m.senderId === activeUserId && !m.isDraft).length;
+      document.getElementById('badge-sent').textContent = sentCount;
+
+      const draftsCount = messages.filter(m => m.senderId === activeUserId && m.isDraft).length;
+      document.getElementById('badge-drafts').textContent = draftsCount;
+    }
+
+    function renderComposeRecipients() {
+      const select = document.getElementById('composeRecipient');
+      const options = users
+        .filter(u => u.id !== activeUserId)
+        .map(u => `<option value="${u.id}">👤 ${u.name}</option>`);
+
+      select.innerHTML = `<option value="ALL">📢 BẢNG TIN CHUNG (Tất cả mọi người cùng thấy)</option>` + options.join('');
+    }
+
+    function openComposeModal(draftData = null) {
+      if(draftData) {
+        document.getElementById('composeRecipient').value = draftData.recipientId;
+        document.getElementById('composeSubject').value = draftData.subject;
+        document.getElementById('composeBody').value = draftData.body;
+      }
+      document.getElementById('composeModal').classList.remove('hidden');
+    }
+
+    function closeComposeModal() {
+      document.getElementById('composeModal').classList.add('hidden');
+      document.getElementById('composeForm').reset();
+    }
+
+    function handleSendMessage(e) {
+      e.preventDefault();
+      const recipientId = document.getElementById('composeRecipient').value;
+      const subject = document.getElementById('composeSubject').value.trim();
+      const body = document.getElementById('composeBody').value.trim();
+
+      if(!subject || !body) return;
+
+      if(selectedMessageId) {
+        const msg = messages.find(m => m.id === selectedMessageId);
+        if(msg && msg.isDraft) {
+          messages = messages.filter(m => m.id !== selectedMessageId);
+        }
+      }
+
+      const newMessage = {
+        id: 'msg_' + Date.now(),
+        senderId: activeUserId,
+        recipientId: recipientId,
+        subject: subject,
+        body: body,
+        timestamp: new Date().toISOString(),
+        readBy: [activeUserId],
+        isDraft: false
+      };
+
+      messages.unshift(newMessage);
+      saveState();
+
+      closeComposeModal();
+      clearDetailPane();
+      updateBadges();
+
+      showToast(recipientId === 'ALL' ? 'Đã đăng tin lên Bảng tin chung!' : 'Đã gửi thư thành công!');
+      switchFolder(recipientId === 'ALL' ? 'broadcast' : 'sent');
+    }
+
+    function saveDraft() {
+      const recipientId = document.getElementById('composeRecipient').value;
+      const subject = document.getElementById('composeSubject').value.trim();
+      const body = document.getElementById('composeBody').value.trim();
+
+      if(!subject && !body) {
+        closeComposeModal();
+        return;
+      }
+
+      const draftMsg = {
+        id: 'msg_' + Date.now(),
+        senderId: activeUserId,
+        recipientId: recipientId,
+        subject: subject || '(Thư nháp chưa có tiêu đề)',
+        body: body,
+        timestamp: new Date().toISOString(),
+        readBy: [activeUserId],
+        isDraft: true
+      };
+
+      messages.unshift(draftMsg);
+      saveState();
+
+      closeComposeModal();
+      updateBadges();
+      showToast('Đã lưu vào Thư nháp');
+      switchFolder('drafts');
+    }
+
+    function editCurrentDraft() {
+      if(!selectedMessageId) return;
+      const msg = messages.find(m => m.id === selectedMessageId);
+      if(msg && msg.isDraft) {
+        openComposeModal(msg);
+      }
+    }
+
+    function sendQuickReply() {
+      const input = document.getElementById('quickReplyInput');
+      const text = input.value.trim();
+      if(!text || !selectedMessageId) return;
+
+      const parentMsg = messages.find(m => m.id === selectedMessageId);
+      if(!parentMsg) return;
+
+      const replyRecipient = parentMsg.senderId === activeUserId ? parentMsg.recipientId : parentMsg.senderId;
+
+      const replyMsg = {
+        id: 'msg_' + Date.now(),
+        senderId: activeUserId,
+        recipientId: replyRecipient,
+        subject: `Phản hồi: ${parentMsg.subject.replace(/^(Phản hồi|Re):\s*/i, '')}`,
+        body: text,
+        timestamp: new Date().toISOString(),
+        readBy: [activeUserId],
+        isDraft: false
+      };
+
+      messages.unshift(replyMsg);
+      saveState();
+
+      input.value = '';
+      updateBadges();
+      showToast('Đã gửi phản hồi!');
+    }
+
+    function deleteCurrentMessage() {
+      if(!selectedMessageId) return;
+      if(confirm("Bạn có chắc muốn xóa thư này?")) {
+        messages = messages.filter(m => m.id !== selectedMessageId);
+        saveState();
+        clearDetailPane();
+        updateBadges();
+        renderMessageList();
+        showToast('Đã xóa thư thành công');
+      }
+    }
+
+    function openAddUserModal() {
+      document.getElementById('addUserModal').classList.remove('hidden');
+    }
+
+    function closeAddUserModal() {
+      document.getElementById('addUserModal').classList.add('hidden');
+      document.getElementById('newUserName').value = '';
+    }
+
+    function handleAddUser() {
+      const nameInput = document.getElementById('newUserName').value.trim();
+      if(!nameInput) return;
+
+      const colors = ['bg-rose-500', 'bg-purple-500', 'bg-cyan-500', 'bg-teal-500', 'bg-orange-500'];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+      const newUser = {
+        id: 'user_' + Date.now(),
+        name: nameInput,
+        avatar: nameInput.charAt(0).toUpperCase(),
+        color: randomColor
+      };
+
+      users.push(newUser);
+      saveState();
+      
+      renderUserSelector();
+      switchUser(newUser.id);
+      closeAddUserModal();
+      showToast(`Đã tạo và đăng nhập tài khoản "${nameInput}"`);
+    }
+
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMessage').textContent = message;
+      
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
